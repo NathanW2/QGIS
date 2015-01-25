@@ -40,6 +40,10 @@ QgsMimeDataUtils::Uri::Uri( QgsLayerItem* layerItem )
       layerType = "plugin";
       break;
   }
+  if ( layerItem->path().endsWith( "qlr" ) )
+  {
+    layerType = "qlr";
+  }
 }
 
 QgsMimeDataUtils::Uri::Uri( QString& encData )

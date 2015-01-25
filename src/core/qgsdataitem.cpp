@@ -792,6 +792,12 @@ QVector<QgsDataItem*> QgsDirectoryItem::createChildren()
     QString path = dir.absoluteFilePath( name );
     QFileInfo fileInfo( path );
 
+    if ( fileInfo.completeSuffix() == "qlr" )
+    {
+      QgsLayerItem * item =  new QgsLayerItem( this, name, path, path, QgsLayerItem::NoType, "ogr" );
+      children.append( item );
+      continue;
+    }
     // vsizip support was added to GDAL/OGR 1.6 but GDAL_VERSION_NUM not available here
     //   so we assume it's available anyway
     {

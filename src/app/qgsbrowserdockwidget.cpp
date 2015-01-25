@@ -470,6 +470,12 @@ void QgsBrowserDockWidget::addLayer( QgsLayerItem *layerItem )
   if ( layerItem == NULL )
     return;
 
+  if ( layerItem->path().endsWith( "qlr" ) )
+  {
+    QgisApp::instance()->openLayerDefinition( layerItem->path() );
+    return;
+  }
+
   QString uri = QgisApp::instance()->crsAndFormatAdjustedLayerUri( layerItem->uri(), layerItem->supportedCRS(), layerItem->supportedFormats() );
   if ( uri.isEmpty() )
     return;

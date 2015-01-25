@@ -940,6 +940,12 @@ void QgisApp::dropEvent( QDropEvent *event )
     QgsMimeDataUtils::UriList lst = QgsMimeDataUtils::decodeUriList( event->mimeData() );
     foreach ( const QgsMimeDataUtils::Uri& u, lst )
     {
+      if ( u.layerType == "qlr" )
+      {
+        openLayerDefinition( uri );
+        continue;
+      }
+
       QString uri = crsAndFormatAdjustedLayerUri( u.uri, u.supportedCrs, u.supportedFormats );
 
       if ( u.layerType == "vector" )

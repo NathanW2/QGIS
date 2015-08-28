@@ -76,6 +76,13 @@ class CORE_EXPORT QgsApplication : public QApplication
      */
     static const QString themeName();
 
+
+    static void setActiveUITheme( const QString &themeName );
+
+    static const QString activeUIThemeName();
+
+    static const QHash<QString, QString> uiThemes();
+
     //! Returns the path to the authors file.
     static const QString authorsFilePath();
 
@@ -307,6 +314,7 @@ class CORE_EXPORT QgsApplication : public QApplication
     static QObject* ABISYM( mFileOpenEventReceiver );
     static QStringList ABISYM( mFileOpenEventList );
 
+    static QString ABISYM( mUIThemeName );
     static QString ABISYM( mPrefixPath );
     static QString ABISYM( mPluginPath );
     static QString ABISYM( mPkgDataPath );

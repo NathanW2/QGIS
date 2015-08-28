@@ -430,6 +430,37 @@ const QString QgsApplication::themeName()
 {
   return ABISYM( mThemeName );
 }
+
+void QgsApplication::setActiveUITheme(const QString &themeName)
+{
+  // Loop all style sheets, find matching name, load it.
+
+}
+
+const QHash<QString, QString> QgsApplication::uiThemes()
+{
+  QString themepath = ABISYM( mPkgDataPath ) + QString( "/resources/themes" );
+  QDir folder(themepath);
+  QFileInfoList styleFiles = folder.entryInfoList(QDir::Dirs);
+  QHash<QString, QString> mapping;
+  foreach(QFileInfo info, styleFiles)
+    {
+      QFileInfo styleFile(info.path() + "/style.qss");
+      if ( !styleFile.exists() )
+        continue;
+
+      QString name = info.baseName();
+      QString path = info.path();
+      mapping.insert(name, path);
+    }
+  return mapping;
+}
+
+const QString QgsApplication::activeUIThemeName()
+{
+  return ABISYM( mUIThemeName );
+}
+
 /*!
   Returns the path to the authors file.
 */

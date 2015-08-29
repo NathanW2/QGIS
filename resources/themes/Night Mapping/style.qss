@@ -8,7 +8,7 @@ QToolTip
 QWidget
 {
     color: #aaa;
-    background-color: #323232;
+    background-color: @background;
 }
 
 
@@ -87,7 +87,7 @@ QMenu
 QMenu::item
 {
     background: transparent;
-    padding: 2px 20px 2px 20px;
+    padding: 5px 20px 5px 20px;
 }
 
 QMenu::item:disabled
@@ -396,12 +396,13 @@ QTabBar::tab:first:!selected
   margin-left: 0px; /* the last selected tab has nothing to overlap with on the right */
 }
 
+QTabBar::tab:bottom {
+    border-bottom: 1px solid rgb(190, 190, 190);
+}
+
 QTabBar::tab:!selected
 {
-    color: #b1b1b1;
-    border-bottom-style: solid;
-    margin-top: 3px;
-    /*background-color: QLinearGradient(x1:0, y1:0, x2:0, y2:1, stop:1 #212121, stop:.4 #343434);*/
+    margin-top: 5px;
 }
 
 QTabBar::tab:selected
@@ -423,7 +424,7 @@ QTabBar::tab:!selected:hover
 QGroupBox::indicator:unchecked,
 QGroupBox::indicator:checked,
 QCheckBox::indicator:checked,
-QCheckBox::indicator:unchecked,
+QCheckBox::indicator:unchecked
 QRadioButton::indicator:checked,
 QRadioButton::indicator:unchecked{
     color: #b1b1b1;
@@ -432,7 +433,16 @@ QRadioButton::indicator:unchecked{
 }
 
 QGroupBox::indicator:checked,
-QCheckBox::indicator:checked,
+QCheckBox::indicator:checked
+{
+    background-color: qradialgradient(
+        cx: 0.5, cy: 0.5,
+        fx: 0.5, fy: 0.5,
+        radius: 1.0,
+        stop: 0.25 #ffaa00,
+        stop: 0.3 #323232
+    );
+}
 QRadioButton::indicator:checked {
     background-color: qradialgradient(
         cx: 0.5, cy: 0.5,
@@ -513,7 +523,9 @@ QgsLayerTreeView
 }
 
 QgsLayerTreeView::item,
-QTreeView#viewCategories::item
+QTreeView#viewGraduated::item,
+QTreeView#viewCategories::item,
+QTreeView#viewRules::item
 {
     border-top: 0.5px solid rgba(108,108,108,50);
     border-bottom: 0.5px solid rgba(108,108,108,50);
@@ -521,12 +533,18 @@ QTreeView#viewCategories::item
 }
 
 QgsLayerTreeView::indicator:unchecked,
-QTreeView#viewCategories::indicator:unchecked {
+QTreeView#viewGraduated::indicator:unchecked,
+QTreeView#viewCategories::indicator:unchecked,
+QTreeView#viewRules::indicator:unchecked 
+{
     image: url(icons/eye-blocked.svg);
 }
 
 QgsLayerTreeView::indicator:checked,
-QTreeView#viewCategories::indicator:checked {
+QTreeView#viewGraduated::indicator:checked, 
+QTreeView#viewCategories::indicator:checked, 
+QTreeView#viewRules::indicator:checked 
+{
     image: url(icons/eye.svg);
 }
 

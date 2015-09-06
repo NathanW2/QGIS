@@ -38,7 +38,7 @@ class QTcpSocket;
 class QValidator;
 
 class QgisAppInterface;
-class QgisAppStyleSheet;
+class QgsStyleSheet;
 class QgsAnnotationItem;
 class QgsClipboard;
 class QgsComposer;
@@ -209,7 +209,7 @@ class APP_EXPORT QgisApp : public QMainWindow, private Ui::MainWindow
     void setIconSizes( int size );
 
     //! Get stylesheet builder object for app and print composers
-    QgisAppStyleSheet *styleSheetBuilder();
+    QgsStyleSheet *styleSheetBuilder();
 
     //! Setup the toolbar popup menus for a given theme
     void setupToolbarPopups( QString themeName );
@@ -1381,7 +1381,7 @@ class APP_EXPORT QgisApp : public QMainWindow, private Ui::MainWindow
     /** Apply raster brightness */
     void adjustBrightnessContrast( int delta, bool updateBrightness = true );
 
-    QgisAppStyleSheet *mStyleSheetBuilder;
+    QgsStyleSheet *mStyleSheetBuilder;
 
     // actions for menus and toolbars -----------------
 

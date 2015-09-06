@@ -23,6 +23,7 @@
 #include "qgsnetworkaccessmanager.h"
 #include "qgsproviderregistry.h"
 #include "qgsexpression.h"
+#include "qgsstylesheet.h"
 
 #include <QDir>
 #include <QFile>
@@ -432,47 +433,9 @@ void QgsApplication::setUITheme( const QString &themeName )
     themename = "default";
 
   QString path = themes[themename];
-  QString stylesheetname = path + "/style.qss";
-  QString autostylesheet = stylesheetname + ".auto";
+  QgsStyleSheet builder;
+  QString styleSheet = builder.generateStyleSheetFile( path, builder.defaultVariables() );
 
-  QFile file( stylesheetname );
-  QFile variablesfile( path + "/variables.qss" );
-  QFile fileout( autostylesheet );
-
-  QFileInfo variableInfo( variablesfile );
-
-  if ( variableInfo.exists() && variablesfile.open( QIODevice::ReadOnly ) )
-  {
-    if ( !file.open( QIODevice::ReadOnly ) || !fileout.open( QIODevice::WriteOnly | QIODevice::Text ) )
-    {
-      return;
-    }
-
-    QHash<QString, QString> variables;
-    QString styledata = file.readAll();
-    QTextStream in( &variablesfile );
-    while ( !in.atEnd() )
-    {
-      QString line = in.readLine();
-      // This is is a variable
-      if ( line.startsWith( "@" ) )
-      {
-        int index = line.indexOf( ":" );
-        QString name = line.mid( 0, index );
-        QString value = line.mid( index + 1, line.length() );
-        styledata.replace( name, value );
-      }
-    }
-    variablesfile.close();
-    QTextStream out( &fileout );
-    out << styledata;
-    fileout.close();
-    file.close();
-    stylesheetname = autostylesheet;
-  }
-
-  QString styleSheet = QLatin1String( "file:///" );
-  styleSheet.append( stylesheetname );
   qApp->setStyleSheet( styleSheet );
   setThemeName( themename );
 }

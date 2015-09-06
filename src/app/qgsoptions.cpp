@@ -20,7 +20,7 @@
 #include "qgsoptions.h"
 #include "qgis.h"
 #include "qgisapp.h"
-#include "qgisappstylesheet.h"
+#include "qgsstylesheet.h"
 #include "qgshighlight.h"
 #include "qgsmapcanvas.h"
 #include "qgsmaprenderer.h"
@@ -81,7 +81,7 @@ QgsOptions::QgsOptions( QWidget *parent, Qt::WindowFlags fl ) :
 
   // stylesheet setup
   mStyleSheetBuilder = QgisApp::instance()->styleSheetBuilder();
-  mStyleSheetNewOpts = mStyleSheetBuilder->defaultOptions();
+  mStyleSheetNewOpts = mStyleSheetBuilder->defaultVariables();
   mStyleSheetOldOpts = QMap<QString, QVariant>( mStyleSheetNewOpts );
 
   connect( mFontFamilyRadioCustom, SIGNAL( toggled( bool ) ), mFontFamilyComboBox, SLOT( setEnabled( bool ) ) );
@@ -1370,14 +1370,14 @@ void QgsOptions::rejectOptions()
   // don't reset stylesheet if we don't have to
   if ( mStyleSheetNewOpts != mStyleSheetOldOpts )
   {
-    mStyleSheetBuilder->buildStyleSheet( mStyleSheetOldOpts );
+//    mStyleSheetBuilder->buildStyleSheet( mStyleSheetOldOpts );
   }
 }
 
 void QgsOptions::on_spinFontSize_valueChanged( int fontSize )
 {
   mStyleSheetNewOpts.insert( "fontPointSize", QVariant( fontSize ) );
-  mStyleSheetBuilder->buildStyleSheet( mStyleSheetNewOpts );
+//  mStyleSheetBuilder->buildStyleSheet( mStyleSheetNewOpts );
 }
 
 void QgsOptions::on_mFontFamilyRadioQt_released()
@@ -1385,7 +1385,7 @@ void QgsOptions::on_mFontFamilyRadioQt_released()
   if ( mStyleSheetNewOpts.value( "fontFamily" ).toString() != mStyleSheetBuilder->defaultFont().family() )
   {
     mStyleSheetNewOpts.insert( "fontFamily", QVariant( mStyleSheetBuilder->defaultFont().family() ) );
-    mStyleSheetBuilder->buildStyleSheet( mStyleSheetNewOpts );
+//    mStyleSheetBuilder->buildStyleSheet( mStyleSheetNewOpts );
   }
 }
 
@@ -1394,7 +1394,7 @@ void QgsOptions::on_mFontFamilyRadioCustom_released()
   if ( mFontFamilyComboBox->currentFont().family() != mStyleSheetBuilder->defaultFont().family() )
   {
     mStyleSheetNewOpts.insert( "fontFamily", QVariant( mFontFamilyComboBox->currentFont().family() ) );
-    mStyleSheetBuilder->buildStyleSheet( mStyleSheetNewOpts );
+//    mStyleSheetBuilder->buildStyleSheet( mStyleSheetNewOpts );
   }
 }
 
@@ -1404,14 +1404,14 @@ void QgsOptions::on_mFontFamilyComboBox_currentFontChanged( const QFont& font )
        && mStyleSheetNewOpts.value( "fontFamily" ).toString() != font.family() )
   {
     mStyleSheetNewOpts.insert( "fontFamily", QVariant( font.family() ) );
-    mStyleSheetBuilder->buildStyleSheet( mStyleSheetNewOpts );
+//    mStyleSheetBuilder->buildStyleSheet( mStyleSheetNewOpts );
   }
 }
 
 void QgsOptions::on_mCustomGroupBoxChkBx_clicked( bool chkd )
 {
   mStyleSheetNewOpts.insert( "groupBoxCustom", QVariant( chkd ) );
-  mStyleSheetBuilder->buildStyleSheet( mStyleSheetNewOpts );
+//  mStyleSheetBuilder->buildStyleSheet( mStyleSheetNewOpts );
 }
 
 void QgsOptions::on_leProjectGlobalCrs_crsChanged( QgsCoordinateReferenceSystem crs )

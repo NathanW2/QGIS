@@ -1,0 +1,22 @@
+* {
+    font: @qgis_font;
+}
+
+QListWidget#mOptionsListWidget {
+    background-color: @options;
+    outline: 0;
+}
+QListWidget#mOptionsListWidget::item {
+    color: white;
+    padding: 3px;
+}
+QListWidget#mOptionsListWidget::item::selected {
+    color: black;
+    background-color: palette(Window);
+    padding-right: 0px;
+}
+
+QTableView {
+    selection-background-color: palette(highlight);
+    selection-color: palette(highlightText);
+}

@@ -97,7 +97,7 @@
 
 #include "qgisapp.h"
 #include "qgisappinterface.h"
-#include "qgisappstylesheet.h"
+#include "qgsstylesheet.h"
 #include "qgis.h"
 #include "qgisplugin.h"
 #include "qgsabout.h"
@@ -564,10 +564,7 @@ QgisApp::QgisApp( QSplashScreen *splash, bool restorePlugins, QWidget * parent, 
   QSettings settings;
 
   // set up stylesheet builder and apply saved or default style options
-  mStyleSheetBuilder = new QgisAppStyleSheet( this );
-  connect( mStyleSheetBuilder, SIGNAL( appStyleSheetChanged( const QString& ) ),
-           this, SLOT( setAppStyleSheet( const QString& ) ) );
-  mStyleSheetBuilder->buildStyleSheet( mStyleSheetBuilder->defaultOptions() );
+  mStyleSheetBuilder = new QgsStyleSheet( this );
 
   QWidget *centralWidget = this->centralWidget();
   QGridLayout *centralLayout = new QGridLayout( centralWidget );
@@ -1138,7 +1135,7 @@ bool QgisApp::event( QEvent * event )
   return done;
 }
 
-QgisAppStyleSheet* QgisApp::styleSheetBuilder()
+QgsStyleSheet* QgisApp::styleSheetBuilder()
 {
   Q_ASSERT( mStyleSheetBuilder );
   return mStyleSheetBuilder;

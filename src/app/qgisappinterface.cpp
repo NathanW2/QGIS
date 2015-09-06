@@ -26,7 +26,7 @@
 #include <QUiLoader>
 
 #include "qgisappinterface.h"
-#include "qgisappstylesheet.h"
+#include "qgsstylesheet.h"
 #include "qgisapp.h"
 #include "qgscomposer.h"
 #include "qgscomposerview.h"
@@ -393,17 +393,17 @@ void QgisAppInterface::deleteComposer( QgsComposerView* composerView )
 
 QMap<QString, QVariant> QgisAppInterface::defaultStyleSheetOptions()
 {
-  return qgis->styleSheetBuilder()->defaultOptions();
+  return qgis->styleSheetBuilder()->defaultVariables();
 }
 
 void QgisAppInterface::buildStyleSheet( const QMap<QString, QVariant>& opts )
 {
-  qgis->styleSheetBuilder()->buildStyleSheet( opts );
+//  qgis->styleSheetBuilder()->buildStyleSheet( opts );
 }
 
 void QgisAppInterface::saveStyleSheetOptions( const QMap<QString, QVariant>& opts )
 {
-  qgis->styleSheetBuilder()->saveToSettings( opts );
+//  qgis->styleSheetBuilder()->saveToSettings( opts );
 }
 
 QFont QgisAppInterface::defaultStyleSheetFont()

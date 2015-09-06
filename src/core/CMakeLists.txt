@@ -173,6 +173,7 @@ SET(QGIS_CORE_SRCS
   qgsstatisticalsummary.cpp
   qgsstringutils.cpp
   qgstransaction.cpp
+  qgsstylesheet.cpp
   qgstolerance.cpp
   qgsvectordataprovider.cpp
   qgsvectorfilewriter.cpp
@@ -404,6 +405,7 @@ SET(QGIS_CORE_MOC_HDRS
   qgsrunprocess.h
   qgsrelationmanager.h
   qgssnappingutils.h
+  qgsstylesheet.h
   qgsvectorlayer.h
   qgsvectorlayereditpassthrough.h
   qgsvectorlayereditbuffer.h

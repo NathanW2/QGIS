@@ -22,7 +22,7 @@
 #include "ui_qgsoptionsbase.h"
 #include "qgisgui.h"
 #include "qgisapp.h"
-#include "qgisappstylesheet.h"
+#include "qgsstylesheet.h"
 #include "qgscontexthelp.h"
 
 #include <qgscoordinatereferencesystem.h>
@@ -201,7 +201,7 @@ class APP_EXPORT QgsOptions : public QgsOptionsDialogBase, private Ui::QgsOption
     void saveDefaultDatumTransformations();
 
   protected:
-    QgisAppStyleSheet* mStyleSheetBuilder;
+    QgsStyleSheet* mStyleSheetBuilder;
     QMap<QString, QVariant> mStyleSheetNewOpts;
     QMap<QString, QVariant> mStyleSheetOldOpts;
 

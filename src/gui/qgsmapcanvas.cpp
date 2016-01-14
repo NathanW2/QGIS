@@ -1513,6 +1513,9 @@ void QgsMapCanvas::mouseMoveEvent( QMouseEvent * e )
   QPoint xy = e->pos();
   QgsPoint coord = getCoordinateTransform()->toMapCoordinates( xy );
   emit xyCoordinates( coord );
+  QPainterPath newpath;
+  newpath.addEllipse( e->pos(), 100, 100);
+  mMap->updateClip( newpath );
 } // mouseMoveEvent
 
 

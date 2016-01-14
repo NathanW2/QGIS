@@ -21,11 +21,13 @@
 #include "qgsmaplayer.h"
 
 #include <QPainter>
+#include <QGraphicsSceneMouseEvent>
 
 QgsMapCanvasMap::QgsMapCanvasMap( QgsMapCanvas* canvas )
     : QgsMapCanvasItem( canvas )
 {
   setZValue( -10 );
+  path = QPainterPath();
 }
 
 QgsMapCanvasMap::~QgsMapCanvasMap()
@@ -53,8 +55,9 @@ void QgsMapCanvasMap::paint( QPainter* painter )
     // This happens on zoom events when ::paint is called before
     // the renderer has completed
   }
-
+  painter->setClipPath( path );
   painter->drawImage( QRect( 0, 0, w, h ), mImage );
+  painter->drawPath( path );
 
   // For debugging:
 #if 0
@@ -75,6 +78,13 @@ void QgsMapCanvasMap::paint( QPainter* painter )
   br = QRectF( c - QPointF( nw / 2, nh / 2 ), QSize( nw, nh ) );
   painter->drawRoundedRect( br, rad, rad );
 #endif
+}
+
+void QgsMapCanvasMap::updateClip( QPainterPath newpath )
+{
+  QgsDebugMsg("Mouse Move");
+  path.swap( newpath );
+  this->update();
 }
 
 QPaintDevice& QgsMapCanvasMap::paintDevice()

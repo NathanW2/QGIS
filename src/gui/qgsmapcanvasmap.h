@@ -72,8 +72,10 @@ class GUI_EXPORT QgsMapCanvasMap : public QgsMapCanvasItem  // public QObject, p
     //! @deprecated in 2.4 - does nothing. Kept for API compatibility
     Q_DECL_DEPRECATED void updateContents() {}
 
-  private:
+    void updateClip( QPainterPath newpath );
 
+  private:
+    QPainterPath path;
     QImage mImage;
 };
 

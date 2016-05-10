@@ -17,6 +17,7 @@
 #include "qgsundowidget.h"
 #include "qgsrendererv2.h"
 #include "qgsrendererv2registry.h"
+#include "qgsmaplayerstylemanager.h"
 
 QgsMapStylingWidget::QgsMapStylingWidget( QgsMapCanvas* canvas, QWidget *parent )
     : QWidget( parent )
@@ -107,6 +108,8 @@ void QgsMapStylingWidget::setLayer( QgsMapLayer *layer )
 
   mCurrentLayer = layer;
 
+  connect( mCurrentLayer->styleManager(), SIGNAL( currentStyleChanged( QString ) ), this, SLOT( syncToLayer() ) );
+
   // TODO Adjust for raster
   updateCurrentWidgetLayer( mMapStyleTabs->currentIndex() );
 }
@@ -196,6 +199,11 @@ void QgsMapStylingWidget::updateCurrentWidgetLayer( int currentPage )
   }
 
   mBlockAutoApply = false;
+}
+
+void QgsMapStylingWidget::syncToLayer()
+{
+  updateCurrentWidgetLayer( mMapStyleTabs->currentIndex() );
 }
 
 

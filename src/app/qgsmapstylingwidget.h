@@ -1,6 +1,7 @@
 #ifndef QGSMAPSTYLESDOCK_H
 #define QGSMAPSTYLESDOCK_H
 
+#include <QListView>
 #include <QToolButton>
 #include <QWidget>
 #include <QLabel>
@@ -11,12 +12,28 @@
 #include <QUndoCommand>
 #include <QDomNode>
 #include <QTimer>
+#include <QStandardItemModel>
 
 class QgsLabelingWidget;
 class QgsMapLayer;
 class QgsMapCanvas;
 class QgsRendererV2PropertiesDialog;
 class QgsUndoWidget;
+
+class APP_EXPORT QgsMapLayerStyleManagerWidget : public QWidget
+{
+    Q_OBJECT
+  public:
+    explicit QgsMapLayerStyleManagerWidget( QWidget *parent = 0 );
+
+    void setLayer( QgsMapLayer* mapLayer );
+
+  private:
+    QgsMapLayer* mLayer;
+    QStandardItemModel* mModel;
+    QListView* mStyleList;
+
+};
 
 class APP_EXPORT QgsMapLayerStyleCommand : public QUndoCommand
 {
@@ -56,6 +73,7 @@ class APP_EXPORT QgsMapStylingWidget : public QWidget
     int mVectorPage;
     int mStyleTabIndex;
     int mLabelTabIndex;
+    int mMapStyleManagerIndex;
     QTimer* mAutoApplyTimer;
     QDomNode mLastStyleXml;
     QgsMapCanvas* mMapCanvas;
@@ -71,6 +89,7 @@ class APP_EXPORT QgsMapStylingWidget : public QWidget
     QCheckBox* mLiveApplyCheck;
     QToolButton* mUndoButton;
     QToolButton* mRedoButton;
+    QgsMapLayerStyleManagerWidget* mStyleManager;
 };
 
 #endif // QGSMAPSTYLESDOCK_H

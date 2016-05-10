@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QSizePolicy>
 #include <QUndoStack>
+#include <QListView>
 
 #include "qgsapplication.h"
 #include "qgslabelingwidget.h"
@@ -70,6 +71,8 @@ QgsMapStylingWidget::QgsMapStylingWidget( QgsMapCanvas* canvas, QWidget *parent 
   mLabelingWidget->setDockMode( true );
   connect( mLabelingWidget, SIGNAL( widgetChanged() ), this, SLOT( autoApply() ) );
 
+  mStyleManager = new QgsMapLayerStyleManagerWidget( this );
+
   // Only labels for now but styles and diagrams will come later
   QScrollArea* stylescroll = new QScrollArea;
   stylescroll->setWidgetResizable( true );
@@ -82,6 +85,7 @@ QgsMapStylingWidget::QgsMapStylingWidget( QgsMapCanvas* canvas, QWidget *parent 
   mStyleTabIndex = mMapStyleTabs->addTab( stylescroll, QgsApplication::getThemeIcon( "propertyicons/symbology.png" ), "Styles" );
   mLabelTabIndex = mMapStyleTabs->addTab( labelscroll, QgsApplication::getThemeIcon( "labelingSingle.svg" ), "Labeling" );
   mMapStyleTabs->addTab( mUndoWidget, QgsApplication::getThemeIcon( "labelingSingle.svg" ), "History" );
+  mMapStyleManagerIndex = mMapStyleTabs->addTab( mStyleManager, QgsApplication::getThemeIcon( "propertyicons/symbology.png" ), "Style Manager" );
 //  int diagramTabIndex = mMapStyleTabs->addTab( new QWidget(), QgsApplication::getThemeIcon( "propertyicons/diagram.png" ), "Diagrams" );
 //  mMapStyleTabs->setTabEnabled( styleTabIndex, false );
 //  mMapStyleTabs->setTabEnabled( diagramTabIndex, false );
@@ -174,7 +178,7 @@ void QgsMapStylingWidget::updateCurrentWidgetLayer( int currentPage )
     {
       mLabelingWidget->setLayer( layer );
     }
-    if ( currentPage == mStyleTabIndex )
+    else if ( currentPage == mStyleTabIndex )
     {
       // TODO Refactor props dialog so we don't have to do this
       QScrollArea* area = qobject_cast<QScrollArea*>( mMapStyleTabs->widget( mStyleTabIndex ) );
@@ -183,11 +187,16 @@ void QgsMapStylingWidget::updateCurrentWidgetLayer( int currentPage )
       connect( mVectorStyleWidget, SIGNAL( widgetChanged() ), this, SLOT( autoApply() ) );
       area->setWidget( mVectorStyleWidget );
     }
+    else if ( currentPage == mMapStyleManagerIndex )
+    {
+      mStyleManager->setLayer( mCurrentLayer );
+    }
+
     QString errorMsg;
     QDomDocument doc( "style" );
     mLastStyleXml = doc.createElement( "style" );
     doc.appendChild( mLastStyleXml );
-    mCurrentLayer->writeSymbology( mLastStyleXml, doc, errorMsg );
+    mCurrentLayer->writeStyle( mLastStyleXml, doc, errorMsg );
   }
   else if ( layer->type() == QgsMapLayer::RasterLayer )
   {
@@ -218,13 +227,40 @@ QgsMapLayerStyleCommand::QgsMapLayerStyleCommand( QgsMapLayer *layer, const QDom
 void QgsMapLayerStyleCommand::undo()
 {
   QString error;
-  mLayer->readSymbology( mLastState, error );
+  mLayer->readStyle( mLastState, error );
   mLayer->triggerRepaint();
 }
 
 void QgsMapLayerStyleCommand::redo()
 {
   QString error;
-  mLayer->readSymbology( mXml, error );
+  mLayer->readStyle( mXml, error );
   mLayer->triggerRepaint();
+}
+
+
+QgsMapLayerStyleManagerWidget::QgsMapLayerStyleManagerWidget( QWidget *parent )
+    : QWidget( parent )
+    , mLayer( nullptr )
+{
+  mModel = new QStandardItemModel( this );
+  mStyleList = new QListView( this );
+  mStyleList->setModel( mModel );
+  mStyleList->setIconSize( QSize( 38, 38 ) );
+
+  setLayout( new QVBoxLayout() );
+  layout()->setContentsMargins( 0, 0, 0, 0 );
+
+  layout()->addWidget( mStyleList );
+}
+
+void QgsMapLayerStyleManagerWidget::setLayer( QgsMapLayer *mapLayer )
+{
+  mModel->clear();
+  Q_FOREACH ( const QString stylename, mapLayer->styleManager()->styles() )
+  {
+    QgsMapLayerStyle style = mapLayer->styleManager()->style( stylename );
+    QStandardItem* item = new QStandardItem( stylename );
+    mModel->appendRow( item );
+  }
 }

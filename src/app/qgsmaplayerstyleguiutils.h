@@ -16,7 +16,11 @@
 #ifndef QGSMAPLAYERSTYLEGUIUTILS_H
 #define QGSMAPLAYERSTYLEGUIUTILS_H
 
+#include <QMap>
 #include <QObject>
+#include <QList>
+#include <QImage>
+#include <QPixmap>
 
 class QgsMapLayer;
 
@@ -37,6 +41,8 @@ class QgsMapLayerStyleGuiUtils : public QObject
 
     //! Add actions for the given map layer to the menu
     void addStyleManagerActions( QMenu* m, QgsMapLayer* layer );
+
+    QMap<QString, QPixmap> images;
 
   private:
     QString defaultStyleName();

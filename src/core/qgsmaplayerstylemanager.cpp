@@ -17,6 +17,8 @@
 
 #include "qgslogger.h"
 #include "qgsmaplayer.h"
+#include "qgsmaprenderersequentialjob.h"
+#include "qgsmapsettings.h"
 
 #include <QDomElement>
 #include <QTextStream>
@@ -99,6 +101,8 @@ bool QgsMapLayerStyleManager::addStyleFromLayer( const QString& name )
 {
   QgsMapLayerStyle style;
   style.readFromLayer( mLayer );
+
+
   return addStyle( name, style );
 }
 

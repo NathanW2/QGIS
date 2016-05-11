@@ -23,6 +23,7 @@ class QgsMapLayer;
 #include <QMap>
 #include <QStringList>
 #include <QObject>
+#include <QImage>
 
 class QDomElement;
 
@@ -61,6 +62,8 @@ class CORE_EXPORT QgsMapLayerStyle
     void readXml( const QDomElement& styleElement );
     //! Write style configuration (for project file writing)
     void writeXml( QDomElement& styleElement ) const;
+
+    QImage mImage;
 
   private:
     QString mXmlData;

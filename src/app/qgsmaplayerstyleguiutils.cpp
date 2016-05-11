@@ -23,6 +23,8 @@
 #include "qgsmapcanvas.h"
 #include "qgsmaplayer.h"
 #include "qgsmaplayerstylemanager.h"
+#include "qgsmapsettings.h"
+#include "qgsmaprenderersequentialjob.h"
 
 
 QgsMapLayerStyleGuiUtils* QgsMapLayerStyleGuiUtils::instance()
@@ -116,7 +118,20 @@ void QgsMapLayerStyleGuiUtils::addStyle()
 
   if ( res ) // make it active!
   {
-    layer->styleManager()->setCurrentStyle( text );
+      QgsMapSettings* settings = new QgsMapSettings();
+      QStringList layers;
+      layers.append(  layer->id() );
+      settings->setLayers( layers );
+      settings->setOutputSize( QSize( 1000, 1000));
+      settings->setExtent( layer->extent() );
+
+      layer->setScaleBasedVisibility( false );
+
+      QgsMapRendererSequentialJob job( *settings );
+      job.start();
+      job.waitForFinished();
+      images[text] = QPixmap::fromImage(job.renderedImage());
+      layer->styleManager()->setCurrentStyle( text );
   }
   else
   {

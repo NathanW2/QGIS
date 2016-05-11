@@ -19,6 +19,7 @@
 #include "qgsrendererv2.h"
 #include "qgsrendererv2registry.h"
 #include "qgsmaplayerstylemanager.h"
+#include "qgsmaplayerstyleguiutils.h"
 
 QgsMapStylingWidget::QgsMapStylingWidget( QgsMapCanvas* canvas, QWidget *parent )
     : QWidget( parent )
@@ -246,11 +247,12 @@ QgsMapLayerStyleManagerWidget::QgsMapLayerStyleManagerWidget( QWidget *parent )
   mModel = new QStandardItemModel( this );
   mStyleList = new QListView( this );
   mStyleList->setModel( mModel );
-  mStyleList->setIconSize( QSize( 38, 38 ) );
+  mStyleList->setIconSize( QSize( 50, 50 ) );
+  mStyleList->setViewMode( QListView::IconMode );
+  mStyleList->setWrapping( false );
 
   setLayout( new QVBoxLayout() );
   layout()->setContentsMargins( 0, 0, 0, 0 );
-
   layout()->addWidget( mStyleList );
 }
 
@@ -259,8 +261,13 @@ void QgsMapLayerStyleManagerWidget::setLayer( QgsMapLayer *mapLayer )
   mModel->clear();
   Q_FOREACH ( const QString stylename, mapLayer->styleManager()->styles() )
   {
-    QgsMapLayerStyle style = mapLayer->styleManager()->style( stylename );
     QStandardItem* item = new QStandardItem( stylename );
+    QPixmap image = QgsMapLayerStyleGuiUtils::instance()->images[stylename];
+    if ( image.isNull() )
+    {
+        QgsDebugMsg("NULL Image");
+    }
+    item->setIcon( image );
     mModel->appendRow( item );
   }
 }

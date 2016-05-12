@@ -5,6 +5,9 @@
 #include <QSizePolicy>
 #include <QUndoStack>
 #include <QListView>
+#include <QToolBar>
+#include <QAction>
+#include <QInputDialog>
 
 #include "qgsapplication.h"
 #include "qgslabelingwidget.h"
@@ -20,6 +23,9 @@
 #include "qgsrendererv2registry.h"
 #include "qgsmaplayerstylemanager.h"
 #include "qgsmaplayerstyleguiutils.h"
+#include "qgsmapsettings.h"
+#include "qgsmaprenderersequentialjob.h"
+#include "qgsmaprenderercache.h"
 
 QgsMapStylingWidget::QgsMapStylingWidget( QgsMapCanvas* canvas, QWidget *parent )
     : QWidget( parent )
@@ -72,7 +78,7 @@ QgsMapStylingWidget::QgsMapStylingWidget( QgsMapCanvas* canvas, QWidget *parent 
   mLabelingWidget->setDockMode( true );
   connect( mLabelingWidget, SIGNAL( widgetChanged() ), this, SLOT( autoApply() ) );
 
-  mStyleManager = new QgsMapLayerStyleManagerWidget( this );
+  mStyleManager = new QgsMapLayerStyleManagerWidget( mMapCanvas, this );
 
   // Only labels for now but styles and diagrams will come later
   QScrollArea* stylescroll = new QScrollArea;
@@ -83,10 +89,10 @@ QgsMapStylingWidget::QgsMapStylingWidget( QgsMapCanvas* canvas, QWidget *parent 
   labelscroll->setFrameStyle( QFrame::NoFrame );
   labelscroll->setWidget( mLabelingWidget );
 
-  mStyleTabIndex = mMapStyleTabs->addTab( stylescroll, QgsApplication::getThemeIcon( "propertyicons/symbology.png" ), "Styles" );
-  mLabelTabIndex = mMapStyleTabs->addTab( labelscroll, QgsApplication::getThemeIcon( "labelingSingle.svg" ), "Labeling" );
-  mMapStyleTabs->addTab( mUndoWidget, QgsApplication::getThemeIcon( "labelingSingle.svg" ), "History" );
-  mMapStyleManagerIndex = mMapStyleTabs->addTab( mStyleManager, QgsApplication::getThemeIcon( "propertyicons/symbology.png" ), "Style Manager" );
+  mStyleTabIndex = mMapStyleTabs->addTab( stylescroll, QgsApplication::getThemeIcon( "propertyicons/symbology.png" ), tr( "Style" ) );
+  mLabelTabIndex = mMapStyleTabs->addTab( labelscroll, QgsApplication::getThemeIcon( "labelingSingle.svg" ), tr( "Label" ) );
+  mMapStyleTabs->addTab( mUndoWidget, QgsApplication::getThemeIcon( "labelingSingle.svg" ), tr( "Undo/Redo" ) );
+  mMapStyleManagerIndex = mMapStyleTabs->addTab( mStyleManager, QgsApplication::getThemeIcon( "propertyicons/symbology.png" ), "Style Set" );
 //  int diagramTabIndex = mMapStyleTabs->addTab( new QWidget(), QgsApplication::getThemeIcon( "propertyicons/diagram.png" ), "Diagrams" );
 //  mMapStyleTabs->setTabEnabled( styleTabIndex, false );
 //  mMapStyleTabs->setTabEnabled( diagramTabIndex, false );
@@ -113,7 +119,7 @@ void QgsMapStylingWidget::setLayer( QgsMapLayer *layer )
 
   mCurrentLayer = layer;
 
-  connect( mCurrentLayer->styleManager(), SIGNAL( currentStyleChanged( QString ) ), this, SLOT( syncToLayer() ) );
+  connect( mCurrentLayer->styleManager(), SIGNAL( currentStyleChanged( QString ) ), this, SLOT( styleChanged() ) );
 
   // TODO Adjust for raster
   updateCurrentWidgetLayer( mMapStyleTabs->currentIndex() );
@@ -211,8 +217,14 @@ void QgsMapStylingWidget::updateCurrentWidgetLayer( int currentPage )
   mBlockAutoApply = false;
 }
 
-void QgsMapStylingWidget::syncToLayer()
+void QgsMapStylingWidget::styleChanged()
 {
+  if ( mMapStyleTabs->currentIndex() == mMapStyleManagerIndex )
+  {
+    mStyleManager->updateThumbnails();
+    return;
+  }
+
   updateCurrentWidgetLayer( mMapStyleTabs->currentIndex() );
 }
 
@@ -240,34 +252,230 @@ void QgsMapLayerStyleCommand::redo()
 }
 
 
-QgsMapLayerStyleManagerWidget::QgsMapLayerStyleManagerWidget( QWidget *parent )
+QgsMapLayerStyleManagerWidget::QgsMapLayerStyleManagerWidget( QgsMapCanvas *canvas, QWidget *parent )
     : QWidget( parent )
+    , mCanvas( canvas )
     , mLayer( nullptr )
 {
   mModel = new QStandardItemModel( this );
   mStyleList = new QListView( this );
   mStyleList->setModel( mModel );
-  mStyleList->setIconSize( QSize( 50, 50 ) );
-  mStyleList->setViewMode( QListView::IconMode );
-  mStyleList->setWrapping( false );
+  mStyleList->setIconSize( QSize( 100, 100 ) );
+  mStyleList->setViewMode( QListView::ListMode );
+//  mStyleList->setWrapping( true );
+  mStyleList->setResizeMode( QListView::Adjust );
+
+  QToolBar* toolbar = new QToolBar( this );
+  QAction* addAction = toolbar->addAction( tr( "Add" ) );
+  connect( addAction, SIGNAL( triggered() ), this, SLOT( addStyle() ) );
+  QAction* removeAction = toolbar->addAction( tr( "Remove Current" ) );
+  connect( removeAction, SIGNAL( triggered() ), this, SLOT( removeStyle() ) );
+
+  connect( canvas, SIGNAL( mapCanvasRefreshed() ), this, SLOT( updateCurrent() ) );
+
+  connect( mStyleList, SIGNAL( clicked( QModelIndex ) ), this, SLOT( styleClicked( QModelIndex ) ) );
 
   setLayout( new QVBoxLayout() );
   layout()->setContentsMargins( 0, 0, 0, 0 );
+  layout()->addWidget( toolbar );
   layout()->addWidget( mStyleList );
 }
 
 void QgsMapLayerStyleManagerWidget::setLayer( QgsMapLayer *mapLayer )
 {
-  mModel->clear();
-  Q_FOREACH ( const QString stylename, mapLayer->styleManager()->styles() )
+  QgsDebugMsg( "SET LAYER" );
+  if ( mLayer )
   {
+    disconnect( mLayer->styleManager(), SIGNAL( currentStyleChanged( QString ) ), this, SLOT( currentStyleChanged( QString ) ) );
+    disconnect( mLayer->styleManager(), SIGNAL( styleAdded( QString ) ), this, SLOT( styleAdded( QString ) ) );
+    disconnect( mLayer->styleManager(), SIGNAL( styleremoved( QString ) ), this, SLOT( styleRemoved( QString ) ) );
+    disconnect( mLayer->styleManager(), SIGNAL( styleRenamed( QString, QString ) ), this, SLOT( styleRenamed( QString, QString ) ) );
+  }
+
+  mLayer = mapLayer;
+  connect( mLayer->styleManager(), SIGNAL( currentStyleChanged( QString ) ), this, SLOT( currentStyleChanged( QString ) ) );
+  connect( mLayer->styleManager(), SIGNAL( styleAdded( QString ) ), this, SLOT( styleAdded( QString ) ) );
+  connect( mLayer->styleManager(), SIGNAL( styleremoved( QString ) ), this, SLOT( styleRemoved( QString ) ) );
+  connect( mLayer->styleManager(), SIGNAL( styleRenamed( QString, QString ) ), this, SLOT( styleRenamed( QString, QString ) ) );
+
+  mModel->clear();
+
+  Q_FOREACH ( const QString name, mapLayer->styleManager()->styles() )
+  {
+    QString stylename = name;
+
+    if ( stylename.isEmpty() )
+      stylename = "(default)";
+
     QStandardItem* item = new QStandardItem( stylename );
-    QPixmap image = QgsMapLayerStyleGuiUtils::instance()->images[stylename];
-    if ( image.isNull() )
-    {
-        QgsDebugMsg("NULL Image");
-    }
-    item->setIcon( image );
+    item->setIcon( QIcon() );
     mModel->appendRow( item );
   }
+
+  QString active = mLayer->styleManager()->currentStyle();
+  currentStyleChanged( active );
+
+  // Clear the cache of the old thumbnails
+  mImageCache.clear();
+  updateThumbnails();
+}
+
+void QgsMapLayerStyleManagerWidget::updateCurrent()
+{
+  if ( !mLayer || !mCanvas->cache() )
+      return;
+
+  QIcon icon = QIcon( QPixmap::fromImage( mCanvas->cache()->cacheImage( mLayer->id() ) ) );
+
+  QString active = mLayer->styleManager()->currentStyle();
+  QList<QStandardItem*> items = mModel->findItems( active );
+  if ( items.isEmpty() )
+    return;
+
+  QStandardItem* item = items.at( 0 );
+  item->setIcon( icon );
+
+  items = mModel->findItems( "(default)" );
+  if ( items.isEmpty() )
+    return;
+
+  item = items.at( 0 );
+  item->setIcon( icon );
+}
+
+void QgsMapLayerStyleManagerWidget::updateThumbnails()
+{
+  if ( !mLayer )
+    return;
+
+  QString active = mLayer->styleManager()->currentStyle();
+
+  for ( int row = 0; row < mModel->rowCount(); ++row )
+  {
+    QStandardItem* item = mModel->item( row );
+    QString stylename = item->text();
+
+    if ( stylename == "(default)"
+         || stylename == active
+         || !mImageCache.contains( stylename ) )
+    {
+      if ( stylename == active && mImageCache.contains( "(default)" ) )
+      {
+        mImageCache[active] = mImageCache["(default)"];
+      }
+      else
+      {
+        QgsMapSettings settings = mCanvas->mapSettings();
+        QStringList layers;
+        layers.append( mLayer->id() );
+        settings.setLayers( layers );
+
+        QMap<QString, QString> overrides;
+        overrides[mLayer->id()] = stylename;
+        settings.setLayerStyleOverrides( overrides );
+
+        QgsMapRendererSequentialJob job( settings );
+        job.start();
+        job.waitForFinished();
+        mImageCache[stylename] = job.renderedImage();
+        QgsDebugMsg( "cache miss" );
+      }
+    }
+    else
+    {
+      QgsDebugMsg( "Found in cache!" );
+    }
+
+    QIcon icon = QIcon( QPixmap::fromImage( mImageCache[stylename] ) );
+    item->setIcon( icon );
+  }
+}
+
+void QgsMapLayerStyleManagerWidget::styleClicked( QModelIndex index )
+{
+  if ( !mLayer || !index.isValid() )
+    return;
+
+  QString name = index.data().toString();
+  mLayer->styleManager()->setCurrentStyle( name );
+
+}
+
+void QgsMapLayerStyleManagerWidget::currentStyleChanged( QString name )
+{
+  QList<QStandardItem*> items = mModel->findItems( name );
+  if ( items.isEmpty() )
+    return;
+
+  QStandardItem* item = items.at( 0 );
+
+  mStyleList->setCurrentIndex( item->index() );
+}
+
+void QgsMapLayerStyleManagerWidget::styleAdded( QString name )
+{
+  QgsDebugMsg( "Style added" );
+  QStandardItem* item = new QStandardItem( name );
+  mModel->appendRow( item );
+  updateThumbnails();
+}
+
+void QgsMapLayerStyleManagerWidget::styleRemoved( QString name )
+{
+  QList<QStandardItem*> items = mModel->findItems( name );
+  if ( items.isEmpty() )
+    return;
+
+  QStandardItem* item = items.at( 0 );
+  mModel->removeRow( item->row() );
+}
+
+void QgsMapLayerStyleManagerWidget::styleRenamed( QString oldname, QString newname )
+{
+  QList<QStandardItem*> items = mModel->findItems( oldname );
+  if ( items.isEmpty() )
+    return;
+
+  QStandardItem* item = items.at( 0 );
+  item->setText( newname );
+}
+
+void QgsMapLayerStyleManagerWidget::addStyle()
+{
+  bool ok;
+  QString text = QInputDialog::getText( nullptr, tr( "New style" ),
+                                        tr( "Style name:" ), QLineEdit::Normal,
+                                        "new style", &ok );
+  if ( !ok || text.isEmpty() )
+    return;
+
+  bool res = mLayer->styleManager()->addStyleFromLayer( text );
+  if ( res ) // make it active!
+  {
+    mLayer->styleManager()->setCurrentStyle( text );
+  }
+  else
+  {
+    QgsDebugMsg( "Failed to add style: " + text );
+  }
+}
+
+void QgsMapLayerStyleManagerWidget::removeStyle()
+{
+  QString current =  mLayer->styleManager()->currentStyle();
+  QList<QStandardItem*> items = mModel->findItems( current );
+  if ( items.isEmpty() )
+    return;
+
+  QStandardItem* item = items.at( 0 );
+  bool res = mLayer->styleManager()->removeStyle( current );
+  if ( res )
+  {
+      mModel->removeRow( item->row() );
+  }
+  else
+  {
+    QgsDebugMsg( "Failed to remove current style" );
+  }
+
 }

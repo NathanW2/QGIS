@@ -42,10 +42,8 @@ class QgsMapLayerStyleGuiUtils : public QObject
     //! Add actions for the given map layer to the menu
     void addStyleManagerActions( QMenu* m, QgsMapLayer* layer );
 
-    QMap<QString, QPixmap> images;
-
-  private:
     QString defaultStyleName();
+  private:
 
   private slots:
     void addStyle();

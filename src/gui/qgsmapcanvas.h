@@ -289,6 +289,8 @@ class GUI_EXPORT QgsMapCanvas : public QGraphicsView
     //! return list of layers within map canvas.
     QList<QgsMapLayer*> layers() const;
 
+    QgsMapRendererCache* cache() { return mCache; }
+
     /**
      * Freeze/thaw the map canvas. This is used to prevent the canvas from
      * responding to events while layers are being added/removed etc.

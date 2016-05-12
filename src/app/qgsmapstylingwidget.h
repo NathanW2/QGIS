@@ -19,20 +19,36 @@ class QgsMapLayer;
 class QgsMapCanvas;
 class QgsRendererV2PropertiesDialog;
 class QgsUndoWidget;
+class QgsMapRendererSequentialJob;
 
 class APP_EXPORT QgsMapLayerStyleManagerWidget : public QWidget
 {
     Q_OBJECT
   public:
-    explicit QgsMapLayerStyleManagerWidget( QWidget *parent = 0 );
+    explicit QgsMapLayerStyleManagerWidget( QgsMapCanvas* canvas, QWidget *parent = 0 );
 
     void setLayer( QgsMapLayer* mapLayer );
 
+  public slots:
+    void updateCurrent();
+    void updateThumbnails();
+
+  private slots:
+    void styleClicked( QModelIndex index );
+    void currentStyleChanged( QString name );
+    void styleAdded( QString name );
+    void styleRemoved( QString name );
+    void styleRenamed( QString oldname, QString newname );
+    void addStyle();
+    void removeStyle();
+
   private:
+    QgsMapCanvas* mCanvas;
     QgsMapLayer* mLayer;
     QStandardItemModel* mModel;
     QListView* mStyleList;
-
+    QMap<QString, QImage> mImageCache;
+    QgsMapRendererSequentialJob* mJob;
 };
 
 class APP_EXPORT QgsMapLayerStyleCommand : public QUndoCommand
@@ -66,7 +82,7 @@ class APP_EXPORT QgsMapStylingWidget : public QWidget
 
   private slots:
     void updateCurrentWidgetLayer( int currentPage );
-    void syncToLayer();
+    void styleChanged();
 
   private:
     int mNotSupportedPage;

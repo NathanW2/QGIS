@@ -118,20 +118,7 @@ void QgsMapLayerStyleGuiUtils::addStyle()
 
   if ( res ) // make it active!
   {
-      QgsMapSettings* settings = new QgsMapSettings();
-      QStringList layers;
-      layers.append(  layer->id() );
-      settings->setLayers( layers );
-      settings->setOutputSize( QSize( 1000, 1000));
-      settings->setExtent( layer->extent() );
-
-      layer->setScaleBasedVisibility( false );
-
-      QgsMapRendererSequentialJob job( *settings );
-      job.start();
-      job.waitForFinished();
-      images[text] = QPixmap::fromImage(job.renderedImage());
-      layer->styleManager()->setCurrentStyle( text );
+    layer->styleManager()->setCurrentStyle( text );
   }
   else
   {

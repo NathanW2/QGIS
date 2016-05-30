@@ -26,6 +26,7 @@ class QgsFeatureRendererV2;
 class QgsSymbolV2SelectorDialog;
 class QgsMapCanvas;
 
+
 /**
   Base class for renderer settings widgets
 

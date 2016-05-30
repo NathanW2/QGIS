@@ -131,7 +131,8 @@ class GUI_EXPORT QgsCategorizedSymbolRendererV2Widget : public QgsRendererV2Widg
 
   private slots:
 
-    void _updateCategorizedSymbolIcon();
+    void cleanUpSymbolSelector();
+    void updateCategorizedSymbolIconFromWidget();
 
   protected:
 

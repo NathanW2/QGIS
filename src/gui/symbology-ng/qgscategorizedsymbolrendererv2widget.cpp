@@ -566,10 +566,7 @@ void QgsCategorizedSymbolRendererV2Widget::changeSelectedSymbols()
 
 void QgsCategorizedSymbolRendererV2Widget::changeCategorizedSymbol()
 {
-
-  // When there is no selection, change the base mCategorizedSymbol
   QgsSymbolV2* newSymbol = mCategorizedSymbol->clone();
-
   QgsSymbolV2SelectorDialog* dlg = new QgsSymbolV2SelectorDialog( newSymbol, mStyle, mLayer, nullptr, true );
   dlg->setMapCanvas( mMapCanvas );
 
@@ -618,16 +615,15 @@ void QgsCategorizedSymbolRendererV2Widget::changeCategorySymbol()
     symbol = QgsSymbolV2::defaultSymbol( mLayer->geometryType() );
   }
 
-  QgsSymbolV2SelectorDialog dlg( symbol, mStyle, mLayer, this );
-  dlg.setMapCanvas( mMapCanvas );
-  if ( !dlg.exec() )
-  {
-    delete symbol;
-    return;
-  }
+  QgsSymbolV2SelectorDialog* dlg = new QgsSymbolV2SelectorDialog( symbol, mStyle, mLayer, nullptr, true );
+  dlg->setMapCanvas( mMapCanvas );
 
-  mRenderer->updateCategorySymbol( catIdx, symbol );
-  emit widgetChanged();
+  QgsRendererWidgetContainer* container = new  QgsRendererWidgetContainer( dlg, "Select Symbol", nullptr );
+  connect( dlg, SIGNAL( symbolModified() ), this, SLOT( updateCategorizedSymbolIconFromWidget() ) );
+  connect( container, SIGNAL( accepted() ), this, SLOT( cleanUpSymbolSelector() ) );
+  int page = mStackedWidget->addWidget( container );
+  mStackedWidget->setCurrentIndex( page );
+  emit panelOpened( true );
 }
 
 static void _createCategories( QgsCategoryList& cats, QList<QVariant>& values, QgsSymbolV2* symbol )

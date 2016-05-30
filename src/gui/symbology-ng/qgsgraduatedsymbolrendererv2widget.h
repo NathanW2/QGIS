@@ -118,6 +118,11 @@ class GUI_EXPORT QgsGraduatedSymbolRendererV2Widget : public QgsRendererV2Widget
     void on_methodComboBox_currentIndexChanged( int );
     void refreshRanges( bool reset = false );
 
+  private slots:
+
+    void cleanUpSymbolSelector();
+    void updateCategorizedSymbolIconFromWidget();
+
   protected:
     void updateUiFromRenderer( bool updateCount = true );
     void connectUpdateHandlers();

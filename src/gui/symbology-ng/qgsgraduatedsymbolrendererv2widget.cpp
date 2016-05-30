@@ -686,6 +686,16 @@ void QgsGraduatedSymbolRendererV2Widget::refreshRanges( bool reset )
   emit widgetChanged();
 }
 
+void QgsGraduatedSymbolRendererV2Widget::cleanUpSymbolSelector()
+{
+
+}
+
+void QgsGraduatedSymbolRendererV2Widget::updateCategorizedSymbolIconFromWidget()
+{
+
+}
+
 void QgsGraduatedSymbolRendererV2Widget::classifyGraduated()
 {
   QString attrName = mExpressionWidget->currentField();

@@ -76,6 +76,8 @@ class GUI_EXPORT QgsRendererV2PropertiesDialog : public QDialog, private Ui::Qgs
 
     void changeOrderBy( const QgsFeatureRequest::OrderBy& orderBy, bool orderByEnabled );
 
+    void updateUIState( bool hidden );
+
   protected:
     /**
      * Connect the given slot to the value changed event for the set of widgets

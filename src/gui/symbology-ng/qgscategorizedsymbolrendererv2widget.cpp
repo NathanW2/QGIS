@@ -565,33 +565,16 @@ void QgsCategorizedSymbolRendererV2Widget::changeSelectedSymbols()
 
 void QgsCategorizedSymbolRendererV2Widget::changeCategorizedSymbol()
 {
-  // When there is a slection, change the selected symbols alone
-  QItemSelectionModel* m = viewCategories->selectionModel();
-  QModelIndexList i = m->selectedRows();
-
-  if ( m && !i.isEmpty() )
-  {
-    changeSelectedSymbols();
-    return;
-  }
 
   // When there is no selection, change the base mCategorizedSymbol
   QgsSymbolV2* newSymbol = mCategorizedSymbol->clone();
 
-  QgsSymbolV2SelectorDialog dlg( newSymbol, mStyle, mLayer, this );
-  dlg.setMapCanvas( mMapCanvas );
-  if ( !dlg.exec() || !newSymbol )
-  {
-    delete newSymbol;
-    return;
-  }
-
-  delete mCategorizedSymbol;
-  mCategorizedSymbol = newSymbol;
-  updateCategorizedSymbolIcon();
-
-  mRenderer->updateSymbols( mCategorizedSymbol );
-  emit widgetChanged();
+  QgsSymbolV2SelectorDialog* dlg = new QgsSymbolV2SelectorDialog( newSymbol, mStyle, mLayer, nullptr, true );
+  connect( dlg, SIGNAL(symbolModified()), this, SLOT( _updateCategorizedSymbolIcon()));
+  dlg->setMapCanvas( mMapCanvas );
+  int page = mStackedWidget->addWidget( dlg );
+  mStackedWidget->setCurrentIndex( page );
+  emit panelOpened( true );
 }
 
 void QgsCategorizedSymbolRendererV2Widget::updateCategorizedSymbolIcon()
@@ -1010,7 +993,48 @@ void QgsCategorizedSymbolRendererV2Widget::matchToSymbolsFromXml()
   {
     QMessageBox::warning( this, tr( "Matched symbols" ),
                           tr( "No categories could be matched to symbols in file." ) );
+    }
+}
+
+void QgsCategorizedSymbolRendererV2Widget::_updateCategorizedSymbolIcon()
+{
+//  if ( !dlg.exec() || !newSymbol )
+//  {
+//    delete newSymbol;
+//    return;
+//  }
+
+  delete mCategorizedSymbol;
+  QgsSymbolV2SelectorDialog* dlg = qobject_cast<QgsSymbolV2SelectorDialog*>(mStackedWidget->currentWidget());
+  mCategorizedSymbol = dlg->symbol()->clone();
+
+  updateCategorizedSymbolIcon();
+
+  // When there is a slection, change the selected symbols alone
+  QItemSelectionModel* m = viewCategories->selectionModel();
+  QModelIndexList i = m->selectedRows();
+
+  if ( m && !i.isEmpty() )
+  {
+          QList<int> selectedCats = selectedCategories();
+
+	  if ( !selectedCats.isEmpty() )
+	  {
+	    Q_FOREACH ( int idx, selectedCats )
+	    {
+	      QgsRendererCategoryV2 category = mRenderer->categories().value( idx );
+
+	      QgsSymbolV2* newCatSymbol = mCategorizedSymbol->clone();
+	      newCatSymbol->setColor( mRenderer->categories()[idx].symbol()->color() );
+	      mRenderer->updateCategorySymbol( idx, newCatSymbol );
+	    }
+	   emit widgetChanged();
+	  }
+    return;
   }
+
+  mRenderer->updateSymbols( mCategorizedSymbol );
+  emit widgetChanged();
 }
 
 void QgsCategorizedSymbolRendererV2Widget::keyPressEvent( QKeyEvent* event )

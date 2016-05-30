@@ -88,6 +88,8 @@ class GUI_EXPORT QgsRendererV2Widget : public QWidget
      */
     void widgetChanged();
 
+    void panelOpened( bool opened );
+
   protected:
     QgsVectorLayer* mLayer;
     QgsStyleV2* mStyle;

@@ -2,6 +2,7 @@
 #define QGSRENDERERWIDGETCONTAINER_H
 
 #include <QWidget>
+#include <QKeyEvent>
 
 #include "ui_qgsrenderercontainerbase.h"
 
@@ -36,6 +37,10 @@ signals:
    void accepted();
 
 public slots:
+
+protected:
+   void keyPressEvent( QKeyEvent* event );
+
 };
 
 #endif // QGSRENDERERWIDGETCONTAINER_H

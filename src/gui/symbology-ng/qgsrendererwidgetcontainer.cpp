@@ -16,5 +16,13 @@ QgsRendererWidgetContainer::QgsRendererWidgetContainer(QWidget *widget, const QS
 
 QWidget *QgsRendererWidgetContainer::widget()
 {
-   return mWidgetLayout->itemAt(0)->widget();
+  return mWidgetLayout->itemAt(0)->widget();
+}
+
+void QgsRendererWidgetContainer::keyPressEvent(QKeyEvent *event)
+{
+  if ( event->key() == Qt::Key_Escape)
+    {
+      emit accepted();
+    }
 }

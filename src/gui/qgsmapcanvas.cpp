@@ -62,6 +62,7 @@ email                : sherman at mrcc.com
 #include "qgsproject.h"
 #include "qgsrubberband.h"
 #include "qgsvectorlayer.h"
+#include "qgscursors.h"
 #include <math.h>
 
 
@@ -212,6 +213,7 @@ QgsMapCanvas::QgsMapCanvas( QWidget * parent, const char *name )
     , mSnappingUtils( nullptr )
     , mScaleLocked( false )
     , mExpressionContextScope( tr( "Map Canvas" ) )
+    , mZoomDragging( false )
 {
   setObjectName( name );
   mScene = new QGraphicsScene();
@@ -272,6 +274,9 @@ QgsMapCanvas::QgsMapCanvas( QWidget * parent, const char *name )
 
   mPreviewEffect = new QgsPreviewEffect( this );
   viewport()->setGraphicsEffect( mPreviewEffect );
+
+  QPixmap zoomPixmap = QPixmap(( const char ** )( zoom_in ) );
+  mZoomCursor = QCursor( zoomPixmap, 7, 7 );
 
   setInteractive( false );
 
@@ -1177,7 +1182,7 @@ void QgsMapCanvas::zoomToFeatureIds( QgsVectorLayer* layer, const QgsFeatureIds&
       return;
     }
     QgsRectangle r = mapSettings().layerExtentToOutputExtent( layer, geom->boundingBox() );
-    rect.combineExtentWith( &r );
+    rect.combineExtentWith( r );
     featureCount++;
   }
 
@@ -1255,6 +1260,7 @@ void QgsMapCanvas::keyPressEvent( QKeyEvent * e )
         //mCanvasProperties->dragging = true;
         if ( ! e->isAutoRepeat() )
         {
+          QApplication::setOverrideCursor( Qt::ClosedHandCursor );
           mCanvasProperties->panSelectorDown = true;
           mCanvasProperties->rubberStartPoint = mCanvasProperties->mouseLastXY;
         }
@@ -1308,7 +1314,7 @@ void QgsMapCanvas::keyReleaseEvent( QKeyEvent * e )
       if ( !e->isAutoRepeat() && mCanvasProperties->panSelectorDown )
       {
         QgsDebugMsg( "Releasing pan selector" );
-
+        QApplication::restoreOverrideCursor();
         mCanvasProperties->panSelectorDown = false;
         panActionEnd( mCanvasProperties->mouseLastXY );
       }
@@ -1341,6 +1347,50 @@ void QgsMapCanvas::mouseDoubleClickEvent( QMouseEvent* e )
 }// mouseDoubleClickEvent
 
 
+void QgsMapCanvas::beginZoomRect( QPoint pos )
+{
+  mZoomRect.setRect( 0, 0, 0, 0 );
+  QApplication::setOverrideCursor( mZoomCursor );
+  mZoomDragging = true;
+  mZoomRubberBand.reset( new QgsRubberBand( this, QGis::Polygon ) );
+  QColor color( Qt::blue );
+  color.setAlpha( 63 );
+  mZoomRubberBand->setColor( color );
+  mZoomRect.setTopLeft( pos );
+}
+
+void QgsMapCanvas::endZoomRect( QPoint pos )
+{
+  mZoomDragging = false;
+  mZoomRubberBand.reset( nullptr );
+  QApplication::restoreOverrideCursor();
+
+  // store the rectangle
+  mZoomRect.setRight( pos.x() );
+  mZoomRect.setBottom( pos.y() );
+
+  if ( mZoomRect.width() < 5 && mZoomRect.height() < 5 )
+  {
+    //probably a mistake - would result in huge zoom!
+    return;
+  }
+
+  //account for bottom right -> top left dragging
+  mZoomRect = mZoomRect.normalized();
+
+  // set center and zoom
+  const QSize& zoomRectSize = mZoomRect.size();
+  const QSize& canvasSize = mSettings.outputSize();
+  double sfx = ( double )zoomRectSize.width() / canvasSize.width();
+  double sfy = ( double )zoomRectSize.height() / canvasSize.height();
+  double sf = qMax( sfx, sfy );
+
+  QgsPoint c = mSettings.mapToPixel().toMapCoordinates( mZoomRect.center() );
+
+  zoomByFactor( sf, &c );
+  refresh();
+}
+
 void QgsMapCanvas::mousePressEvent( QMouseEvent* e )
 {
   //use middle mouse button for panning, map tools won't receive any events in that case
@@ -1351,12 +1401,20 @@ void QgsMapCanvas::mousePressEvent( QMouseEvent* e )
   }
   else
   {
-
     // call handler of current map tool
     if ( mMapTool )
     {
-      QScopedPointer<QgsMapMouseEvent> me( new QgsMapMouseEvent( this, e ) );
-      mMapTool->canvasPressEvent( me.data() );
+      if ( mMapTool->flags() & QgsMapTool::AllowZoomRect && e->button() == Qt::LeftButton
+           && e->modifiers() & Qt::ShiftModifier )
+      {
+        beginZoomRect( e->pos() );
+        return;
+      }
+      else
+      {
+        QScopedPointer<QgsMapMouseEvent> me( new QgsMapMouseEvent( this, e ) );
+        mMapTool->canvasPressEvent( me.data() );
+      }
     }
   }
 
@@ -1381,11 +1439,17 @@ void QgsMapCanvas::mouseReleaseEvent( QMouseEvent* e )
   }
   else
   {
+    if ( mZoomDragging && e->button() == Qt::LeftButton )
+    {
+      endZoomRect( e->pos() );
+      return;
+    }
+
     // call handler of current map tool
     if ( mMapTool )
     {
       // right button was pressed in zoom tool? return to previous non zoom tool
-      if ( e->button() == Qt::RightButton && mMapTool->isTransient() )
+      if ( e->button() == Qt::RightButton && mMapTool->flags() & QgsMapTool::Transient )
       {
         QgsDebugMsg( "Right click in map tool zoom or pan, last tool is " +
                      QString( mLastNonZoomMapTool ? "not null." : "null." ) );
@@ -1394,7 +1458,8 @@ void QgsMapCanvas::mouseReleaseEvent( QMouseEvent* e )
 
         // change to older non-zoom tool
         if ( mLastNonZoomMapTool
-             && ( !mLastNonZoomMapTool->isEditTool() || ( vlayer && vlayer->isEditable() ) ) )
+             && ( !( mLastNonZoomMapTool->flags() & QgsMapTool::EditTool )
+                  || ( vlayer && vlayer->isEditable() ) ) )
         {
           QgsMapTool* t = mLastNonZoomMapTool;
           mLastNonZoomMapTool = nullptr;
@@ -1488,15 +1553,18 @@ void QgsMapCanvas::wheelEvent( QWheelEvent *e )
   if ( mMapTool )
   {
     mMapTool->wheelEvent( e );
+    if ( e->isAccepted() )
+      return;
   }
 
-  if ( QgsApplication::keyboardModifiers() )
+  double zoomFactor = mWheelZoomFactor;
+  if ( e->modifiers() & Qt::ControlModifier )
   {
-    // leave the wheel for map tools if any modifier pressed
-    return;
+    //holding ctrl while wheel zooming results in a finer zoom
+    zoomFactor = 1.0 + ( zoomFactor - 1.0 ) / 20.0;
   }
 
-  double signedWheelFactor = e->delta() > 0 ? 1 / mWheelZoomFactor : mWheelZoomFactor;
+  double signedWheelFactor = e->delta() > 0 ? 1 / zoomFactor : zoomFactor;
 
   // zoom map to mouse cursor by scaling
   QgsPoint oldCenter = center();
@@ -1567,6 +1635,12 @@ void QgsMapCanvas::mouseMoveEvent( QMouseEvent * e )
   {
     panAction( e );
   }
+  else if ( mZoomDragging )
+  {
+    mZoomRect.setBottomRight( e->pos() );
+    mZoomRubberBand->setToCanvasRectangle( mZoomRect );
+    mZoomRubberBand->show();
+  }
   else
   {
     // call handler of current map tool
@@ -1597,7 +1671,8 @@ void QgsMapCanvas::setMapTool( QgsMapTool* tool )
     mMapTool->deactivate();
   }
 
-  if ( tool->isTransient() && mMapTool && !mMapTool->isTransient() )
+  if (( tool->flags() & QgsMapTool::Transient )
+      && mMapTool && !( mMapTool->flags() & QgsMapTool::Transient ) )
   {
     // if zoom or pan tool will be active, save old tool
     // to bring it back on right click

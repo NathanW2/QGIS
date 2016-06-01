@@ -54,6 +54,7 @@
 #include <QRegExp>
 #include <QRegExpValidator>
 #include <QSettings>
+#include <QShortcut>
 #include <QSpinBox>
 #include <QSplashScreen>
 #ifndef QT_NO_OPENSSL
@@ -935,6 +936,14 @@ QgisApp::QgisApp( QSplashScreen *splash, bool restorePlugins, bool skipVersionCh
   mMapCanvas->clearExtentHistory(); // reset zoomnext/zoomlast
   mLastComposerId = 0;
 
+  QAction* zoomAction = new QAction( this );
+  connect( zoomAction, SIGNAL( triggered( bool ) ), mMapCanvas, SLOT( zoomIn() ) );
+  zoomAction->setShortcut( QKeySequence( "Ctrl++" ) );
+  QShortcut* zoomShortCut = new QShortcut( QKeySequence( tr( "Ctrl+=" ) ), this );
+  connect( zoomShortCut, SIGNAL( activated() ), mMapCanvas, SLOT( zoomIn() ) );
+  QAction* zoomOutAction = new QAction( this );
+  connect( zoomOutAction, SIGNAL( triggered( bool ) ), mMapCanvas, SLOT( zoomOut() ) );
+  zoomOutAction->setShortcut( QKeySequence( "Ctrl+-" ) );
 
   // Show a nice tip of the day
   if ( settings.value( QString( "/qgis/showTips%1" ).arg( QGis::QGIS_VERSION_INT / 100 ), true ).toBool() )
@@ -8810,6 +8819,16 @@ void QgisApp::openURL( QString url, bool useQgisDocDirectory )
 #endif
 }
 
+void QgisApp::registerMapLayerPropertiesFactory( QgsMapLayerPropertiesFactory* factory )
+{
+  mMapLayerPropertiesFactories << factory;
+}
+
+void QgisApp::unregisterMapLayerPropertiesFactory( QgsMapLayerPropertiesFactory* factory )
+{
+  mMapLayerPropertiesFactories.removeAll( factory );
+}
+
 /** Get a pointer to the currently selected map layer */
 QgsMapLayer *QgisApp::activeLayer()
 {
@@ -9753,7 +9772,7 @@ void QgisApp::mapToolChanged( QgsMapTool *newTool, QgsMapTool *oldTool )
 
   if ( newTool )
   {
-    if ( !newTool->isEditTool() )
+    if ( !( newTool->flags() & QgsMapTool::EditTool ) )
     {
       mNonEditMapTool = newTool;
     }
@@ -10195,7 +10214,7 @@ void QgisApp::activateDeactivateLayerRelatedActions( QgsMapLayer* layer )
     mActionFeatureAction->setEnabled( layerHasActions );
 
     if ( !isEditable && mMapCanvas && mMapCanvas->mapTool()
-         && mMapCanvas->mapTool()->isEditTool() && !mSaveRollbackInProgress )
+         && ( mMapCanvas->mapTool()->flags() & QgsMapTool::EditTool ) && !mSaveRollbackInProgress )
     {
       mMapCanvas->setMapTool( mNonEditMapTool );
     }
@@ -11021,6 +11040,10 @@ void QgisApp::showLayerProperties( QgsMapLayer *ml )
 #else
     QgsVectorLayerProperties *vlp = new QgsVectorLayerProperties( vlayer, this );
 #endif
+    Q_FOREACH ( QgsMapLayerPropertiesFactory* factory, mMapLayerPropertiesFactories )
+    {
+      vlp->addPropertiesPageFactory( factory );
+    }
 
     if ( vlp->exec() )
     {

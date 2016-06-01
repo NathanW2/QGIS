@@ -81,6 +81,7 @@ SET(QGIS_CORE_SRCS
   qgsactionmanager.cpp
   qgsaggregatecalculator.cpp
   qgsattributetableconfig.cpp
+  qgsbillboardregistry.cpp
   qgsbrowsermodel.cpp
   qgscachedfeatureiterator.cpp
   qgscacheindex.cpp
@@ -449,6 +450,7 @@ ENDIF(NOT MSVC)
 
 SET(QGIS_CORE_MOC_HDRS
   qgsapplication.h
+  qgsbillboardregistry.h
   qgsbrowsermodel.h
   qgscontexthelp.h
   qgscoordinatetransform.h

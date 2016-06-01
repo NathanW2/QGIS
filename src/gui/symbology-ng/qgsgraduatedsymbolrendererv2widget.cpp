@@ -842,7 +842,6 @@ void QgsGraduatedSymbolRendererV2Widget::changeGraduatedSymbol()
   int page = mStackedWidget->addWidget( container );
   mStackedWidget->setCurrentIndex( page );
   emit panelOpened( true );
-
 }
 
 void QgsGraduatedSymbolRendererV2Widget::updateGraduatedSymbolIcon()
@@ -915,18 +914,15 @@ void QgsGraduatedSymbolRendererV2Widget::changeSelectedSymbols()
 void QgsGraduatedSymbolRendererV2Widget::changeRangeSymbol( int rangeIdx )
 {
   QgsSymbolV2* newSymbol = mRenderer->ranges()[rangeIdx].symbol()->clone();
+  QgsSymbolV2SelectorDialog* dlg = new QgsSymbolV2SelectorDialog( newSymbol, mStyle, mLayer, nullptr, true );
+  dlg->setMapCanvas( mMapCanvas );
 
-  QgsSymbolV2SelectorDialog dlg( newSymbol, mStyle, mLayer, this );
-  dlg.setMapCanvas( mMapCanvas );
-  if ( !dlg.exec() )
-  {
-    delete newSymbol;
-    return;
-  }
-
-  mRenderer->updateRangeSymbol( rangeIdx, newSymbol );
-  mHistogramWidget->refresh();
-  emit widgetChanged();
+  QgsRendererWidgetContainer* container = new  QgsRendererWidgetContainer( dlg, "Select Symbol", nullptr );
+  connect( dlg, SIGNAL( symbolModified() ), this, SLOT( updateSymbolsFromWidget() ) );
+  connect( container, SIGNAL( accepted() ), this, SLOT( cleanUpSymbolSelector() ) );
+  int page = mStackedWidget->addWidget( container );
+  mStackedWidget->setCurrentIndex( page );
+  emit panelOpened( true );
 }
 
 void QgsGraduatedSymbolRendererV2Widget::changeRange( int rangeIdx )

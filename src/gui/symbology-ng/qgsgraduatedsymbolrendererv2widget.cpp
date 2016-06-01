@@ -691,10 +691,11 @@ void QgsGraduatedSymbolRendererV2Widget::cleanUpSymbolSelector()
 
 }
 
-void QgsGraduatedSymbolRendererV2Widget::updateCategorizedSymbolIconFromWidget()
+void QgsGraduatedSymbolRendererV2Widget::updateSymbolsFromWidget()
 {
 
 }
+
 
 void QgsGraduatedSymbolRendererV2Widget::classifyGraduated()
 {

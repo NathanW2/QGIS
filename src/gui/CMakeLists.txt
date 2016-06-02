@@ -253,6 +253,7 @@ SET(QGIS_GUI_SRCS
   qgsmaptoolidentifyfeature.cpp
   qgsmaptoolpan.cpp
   qgsmaptoolzoom.cpp
+  qgsmapstylepanel.cpp
   qgsmessagebar.cpp
   qgsmessagebaritem.cpp
   qgsmessagelogviewer.cpp
@@ -396,9 +397,8 @@ SET(QGIS_GUI_MOC_HDRS
   qgsmaptoolidentify.h
   qgsmaptoolidentifyfeature.h
   qgsmaptoolpan.h
-  qgsmaptoolpan.h
   qgsmaptoolzoom.h
-  qgsmaptoolzoom.h
+  qgsmapstylepanel.h
   qgsmessagebar.h
   qgsmessagebaritem.h
   qgsmessagelogviewer.h

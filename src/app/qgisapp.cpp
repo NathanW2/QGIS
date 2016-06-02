@@ -732,7 +732,7 @@ QgisApp::QgisApp( QSplashScreen *splash, bool restorePlugins, bool skipVersionCh
   mMapStylingDock = new QDockWidget( this );
   mMapStylingDock->setWindowTitle( tr( "Map Styling" ) );
   mMapStylingDock->setObjectName( "MapStyling" );
-  mMapStyleWidget = new QgsMapStylingWidget( mMapCanvas );
+  mMapStyleWidget = new QgsMapStylingWidget( mMapCanvas, mMapStylePanelFactories );
   mMapStylingDock->setWidget( mMapStyleWidget );
   connect( mMapStyleWidget, SIGNAL( styleChanged( QgsMapLayer* ) ), this, SLOT( updateLabelToolButtons() ) );
 //  connect( mMapStylingDock, SIGNAL( visibilityChanged( bool ) ), mActionStyleDock, SLOT( setChecked( bool ) ) );
@@ -8815,6 +8815,16 @@ void QgisApp::registerMapLayerPropertiesFactory( QgsMapLayerPropertiesFactory* f
 void QgisApp::unregisterMapLayerPropertiesFactory( QgsMapLayerPropertiesFactory* factory )
 {
   mMapLayerPropertiesFactories.removeAll( factory );
+}
+
+void QgisApp::registerMapStylePanelFactory(QgsMapStylePanelFactory *factory)
+{
+  mMapStylePanelFactories << factory;
+}
+
+void QgisApp::unregisterMapStylePanelFactory(QgsMapStylePanelFactory *factory)
+{
+  mMapStylePanelFactories.removeAll( factory );
 }
 
 /** Get a pointer to the currently selected map layer */

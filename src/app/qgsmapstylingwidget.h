@@ -44,6 +44,8 @@ class APP_EXPORT QgsMapStylingWidget : public QWidget, private Ui::QgsMapStyling
     QgsMapStylingWidget(QgsMapCanvas *canvas, QList<QgsMapStylePanelFactory *> pages, QWidget *parent = 0 );
     QgsMapLayer* layer() { return mCurrentLayer; }
 
+    void setPageFactories( QList<QgsMapStylePanelFactory*> factories) { mPageFactories = factories; }
+
   signals:
     void styleChanged( QgsMapLayer* layer );
 

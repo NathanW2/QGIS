@@ -33,5 +33,5 @@ class QgsMapStylePanelFactory
     virtual QIcon icon() = 0;
     virtual QString title() = 0;
     virtual QList<QgsMapLayer::LayerType> layerTypes() = 0;
-    virtual QgsMapStylePanel* createPanel( QgsMapLayer* layer, QWidget* parent ) = 0;
+    virtual QgsMapStylePanel* createPanel( QgsMapLayer* layer, QgsMapCanvas *canvas, QWidget* parent ) = 0;
 };

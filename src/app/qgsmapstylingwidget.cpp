@@ -77,7 +77,7 @@ void QgsMapStylingWidget::setLayer( QgsMapLayer *layer )
 
   mCurrentLayer = layer;
 
-  if ( clearOptions )
+  if ( true )
   {
     mOptionsListWidget->clear();
     mUserPages.clear();
@@ -95,13 +95,15 @@ void QgsMapStylingWidget::setLayer( QgsMapLayer *layer )
 
       Q_FOREACH( QgsMapStylePanelFactory* factory, mPageFactories)
         {
-          if ( factory->layerTypes().contains(layer->type()))
-            {
+          QgsDebugMsg("Checking factory for type");
+//          if ( factory->layerType() == layer->type())
+//            {
+             QgsDebugMsg("Found factory with matching type");
               QListWidgetItem* item =  new QListWidgetItem( factory->icon(), "" );
               mOptionsListWidget->addItem( item );
               int row = mOptionsListWidget->row( item );
               mUserPages[row] = factory;
-            }
+//            }
         }
     mOptionsListWidget->addItem( new QListWidgetItem( QgsApplication::getThemeIcon( "mIconTreeView.png" ), "" ) );
     mOptionsListWidget->setCurrentRow( 0 );
@@ -217,9 +219,9 @@ void QgsMapStylingWidget::updateCurrentWidgetLayer()
     // Create the user page
     if ( mUserPages.contains(row))
       {
-        QgsMapStylePanel* panel = mUserPages[row]->createPanel( vlayer, this );
-        connect( mVectorStyleWidget, SIGNAL( widgetChanged() ), this, SLOT( autoApply() ) );
-        mWidgetArea->setWidget( mVectorStyleWidget );
+        QgsMapStylePanel* panel = mUserPages[row]->createPanel( vlayer, mMapCanvas, this );
+        connect( panel, SIGNAL( widgetChanged() ), this, SLOT( autoApply() ) );
+        mWidgetArea->setWidget( panel );
 
       }
     else

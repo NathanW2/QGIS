@@ -27,6 +27,7 @@ class EffectItem;
 class QgsPaintEffect;
 class QCheckBox;
 class QToolButton;
+class QgsRendererWidgetContainer;
 
 /** \ingroup gui
  * \class QgsEffectStackPropertiesWidget
@@ -198,7 +199,7 @@ class GUI_EXPORT QgsEffectStackCompactWidget: public QWidget
     QgsEffectStackCompactWidget( QWidget* parent = nullptr, QgsPaintEffect* effect = nullptr );
     ~QgsEffectStackCompactWidget();
 
-    /** Sets paint effect attached to the widget
+    /** Sets paint effect attached to the widget,
      * @param effect QgsPaintEffect for modification by the widget. If the effect
      * is not a QgsEffectStack, it will be automatically converted to an effect
      * stack consisting of the original effect
@@ -217,11 +218,15 @@ class GUI_EXPORT QgsEffectStackCompactWidget: public QWidget
      */
     void setPreviewPicture( const QPicture &picture );
 
+    void setDockMode( bool dockMode ) { mDockMode = dockMode; }
+
   signals:
 
     /** Emitted when the paint effect properties change
      */
     void changed();
+
+    void showPanel( QgsRendererWidgetContainer* widget );
 
   private slots:
 
@@ -229,7 +234,11 @@ class GUI_EXPORT QgsEffectStackCompactWidget: public QWidget
 
     void enableToggled( bool checked );
 
+    void cleanUpContainer( QgsRendererWidgetContainer* container );
+    void updateFromContainer( QgsRendererWidgetContainer *container );
+
   private:
+    bool mDockMode;
 
     QgsEffectStack* mStack;
     QCheckBox* mEnabledCheckBox;

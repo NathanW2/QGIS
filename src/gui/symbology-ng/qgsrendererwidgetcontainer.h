@@ -50,6 +50,8 @@ class GUI_EXPORT QgsRendererWidgetContainer : public QWidget, private Ui::QgsRen
       */
     void accepted( QgsRendererWidgetContainer* container );
 
+    void showPanel( QgsRendererWidgetContainer* container );
+
     /**
      * Emiited when the internal widget changes state.
      * @param conatiner The container holding the widget that changed state.

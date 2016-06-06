@@ -301,6 +301,7 @@ void QgsRendererV2PropertiesDialog::onOK()
 void QgsRendererV2PropertiesDialog::showPanel( QgsRendererWidgetContainer *container )
 {
   connect( container, SIGNAL( accepted( QgsRendererWidgetContainer* ) ), this, SLOT( closePanel( QgsRendererWidgetContainer* ) ) );
+  connect( container, SIGNAL( showPanel(QgsRendererWidgetContainer*)), this, SLOT( showPanel(QgsRendererWidgetContainer*)));
 
   int page = this->mainStack->addWidget( container );
   this->mainStack->setCurrentIndex( page );

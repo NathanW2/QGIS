@@ -28,6 +28,8 @@ QgsRendererWidgetContainer::QgsRendererWidgetContainer( QWidget *widget, const Q
   QPushButton* button = mButtonBox->button( QDialogButtonBox::Close );
   button->setDefault( true );
   connect( button, SIGNAL( pressed() ), this, SLOT( accept() ) );
+
+  connect( widget, SIGNAL(showPanel(QgsRendererWidgetContainer*)), this, SIGNAL(showPanel(QgsRendererWidgetContainer*)));
 }
 
 QWidget *QgsRendererWidgetContainer::widget()

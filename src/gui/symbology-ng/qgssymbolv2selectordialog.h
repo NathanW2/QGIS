@@ -40,6 +40,7 @@ class QgsMarkerSymbolLayerV2;
 class QgsLineSymbolLayerV2;
 
 class QgsMapCanvas;
+class QgsRendererWidgetContainer;
 
 /// @cond PRIVATE
 
@@ -112,6 +113,8 @@ class GUI_EXPORT QgsSymbolV2SelectorDialog : public QDialog, private Ui::QgsSymb
      */
     QgsSymbolV2* symbol() { return mSymbol; }
 
+    void setDockMode( bool dockMode );
+
   protected:
     //! Reimplements dialog keyPress event so we can ignore it
     void keyPressEvent( QKeyEvent * event ) override;
@@ -134,6 +137,12 @@ class GUI_EXPORT QgsSymbolV2SelectorDialog : public QDialog, private Ui::QgsSymb
 
   signals:
     void symbolModified();
+
+    /** Shows a panel widget inside the renderer widget.
+     * @param container widget panel to show
+     * @note added in QGIS 2.16
+     */
+    void showPanel( QgsRendererWidgetContainer* widget );
 
   public slots:
     void moveLayerDown();
@@ -172,6 +181,7 @@ class GUI_EXPORT QgsSymbolV2SelectorDialog : public QDialog, private Ui::QgsSymb
     QWidget *mPresentWidget;
 
   private:
+    bool mDockMode;
     QScopedPointer<DataDefinedRestorer> mDataDefineRestorer;
     QScopedPointer< QgsExpressionContext > mPresetExpressionContext;
 

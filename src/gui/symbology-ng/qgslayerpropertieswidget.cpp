@@ -119,6 +119,8 @@ QgsLayerPropertiesWidget::QgsLayerPropertiesWidget( QgsSymbolLayerV2* layer, con
   connect( cboLayerType, SIGNAL( currentIndexChanged( int ) ), this, SLOT( layerTypeChanged() ) );
 
   connect( mEffectWidget, SIGNAL( changed() ), this, SLOT( emitSignalChanged() ) );
+  connect( mEffectWidget, SIGNAL( showPanel(QgsRendererWidgetContainer*) ), this, SIGNAL(showPanel(QgsRendererWidgetContainer*)));
+
   mEffectWidget->setPaintEffect( mLayer->paintEffect() );
 }
 
@@ -128,6 +130,14 @@ void QgsLayerPropertiesWidget::setMapCanvas( QgsMapCanvas *canvas )
   QgsSymbolLayerV2Widget* w = dynamic_cast< QgsSymbolLayerV2Widget* >( stackedWidget->currentWidget() );
   if ( w )
     w->setMapCanvas( mMapCanvas );
+}
+
+void QgsLayerPropertiesWidget::setDockMode(bool dockMode)
+{
+  mDockMode = dockMode;
+  if ( dockMode )
+    QgsDebugMsg("DOCK MODE!!!!!!!11");
+  mEffectWidget->setDockMode( dockMode );
 }
 
 void QgsLayerPropertiesWidget::setExpressionContext( QgsExpressionContext *context )

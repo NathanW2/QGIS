@@ -232,6 +232,7 @@ QgsSymbolV2SelectorDialog::QgsSymbolV2SelectorDialog( QgsSymbolV2* symbol, QgsSt
     buttonBox->hide();
     layout()->setContentsMargins( 0, 0, 0, 0 );
   }
+  this->setDockMode( embedded );
   // setup icons
   btnAddLayer->setIcon( QIcon( QgsApplication::iconPath( "symbologyAdd.svg" ) ) );
   btnRemoveLayer->setIcon( QIcon( QgsApplication::iconPath( "symbologyRemove.svg" ) ) );
@@ -319,6 +320,11 @@ void QgsSymbolV2SelectorDialog::setMapCanvas( QgsMapCanvas *canvas )
     layerProp->setMapCanvas( canvas );
   if ( listWidget )
     listWidget->setMapCanvas( canvas );
+}
+
+void QgsSymbolV2SelectorDialog::setDockMode(bool dockMode)
+{
+  mDockMode = dockMode;
 }
 
 void QgsSymbolV2SelectorDialog::loadSymbol( QgsSymbolV2* symbol, SymbolLayerItem* parent )
@@ -435,6 +441,7 @@ void QgsSymbolV2SelectorDialog::layerChanged()
     SymbolLayerItem *parent = static_cast<SymbolLayerItem*>( currentItem->parent() );
     mDataDefineRestorer.reset( new DataDefinedRestorer( parent->symbol(), currentItem->layer() ) );
     QgsLayerPropertiesWidget *layerProp = new QgsLayerPropertiesWidget( currentItem->layer(), parent->symbol(), mVectorLayer );
+    layerProp->setDockMode( mDockMode );
     layerProp->setExpressionContext( mPresetExpressionContext.data() );
     layerProp->setMapCanvas( mMapCanvas );
     setWidget( layerProp );
@@ -442,6 +449,7 @@ void QgsSymbolV2SelectorDialog::layerChanged()
     connect( layerProp, SIGNAL( changed() ), this, SLOT( updateLayerPreview() ) );
     // This connection when layer type is changed
     connect( layerProp, SIGNAL( changeLayer( QgsSymbolLayerV2* ) ), this, SLOT( changeLayer( QgsSymbolLayerV2* ) ) );
+    connect( layerProp, SIGNAL( showPanel(QgsRendererWidgetContainer*)), this, SIGNAL( showPanel(QgsRendererWidgetContainer*)));
   }
   else
   {

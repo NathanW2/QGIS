@@ -52,6 +52,8 @@ class GUI_EXPORT QgsLayerPropertiesWidget : public QWidget, private Ui::LayerPro
      */
     virtual void setMapCanvas( QgsMapCanvas* canvas );
 
+    void setDockMode( bool dockMode );
+
   public slots:
     void layerTypeChanged();
     void emitSignalChanged();
@@ -70,6 +72,12 @@ class GUI_EXPORT QgsLayerPropertiesWidget : public QWidget, private Ui::LayerPro
     void changed();
     void changeLayer( QgsSymbolLayerV2* );
 
+    /** Shows a panel widget inside the renderer widget.
+     * @param container widget panel to show
+     * @note added in QGIS 2.16
+     */
+    void showPanel( QgsRendererWidgetContainer* widget );
+
   protected:
     void populateLayerTypes();
     void updateSymbolLayerWidget( QgsSymbolLayerV2* layer );
@@ -84,6 +92,7 @@ class GUI_EXPORT QgsLayerPropertiesWidget : public QWidget, private Ui::LayerPro
     void reloadLayer();
 
   private:
+    bool mDockMode;
     QgsExpressionContext* mPresetExpressionContext;
     QgsMapCanvas* mMapCanvas;
 

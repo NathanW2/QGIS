@@ -36,6 +36,8 @@ class GUI_EXPORT QgsSingleSymbolRendererV2Widget : public QgsRendererV2Widget
 
     virtual void setMapCanvas( QgsMapCanvas* canvas ) override;
 
+    virtual void setDockMode( bool dockMode ) override;
+
   public slots:
     void changeSingleSymbol();
 

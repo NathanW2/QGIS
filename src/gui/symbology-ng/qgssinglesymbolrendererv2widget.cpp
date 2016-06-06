@@ -53,6 +53,7 @@ QgsSingleSymbolRendererV2Widget::QgsSingleSymbolRendererV2Widget( QgsVectorLayer
   // setup ui
   mSelector = new QgsSymbolV2SelectorDialog( mSingleSymbol, mStyle, mLayer, nullptr, true );
   connect( mSelector, SIGNAL( symbolModified() ), this, SLOT( changeSingleSymbol() ) );
+  connect( mSelector, SIGNAL(showPanel(QgsRendererWidgetContainer*)), this, SIGNAL(showPanel(QgsRendererWidgetContainer*)));
 
   QVBoxLayout* layout = new QVBoxLayout( this );
   layout->setContentsMargins( 0, 0, 0, 0 );
@@ -84,6 +85,14 @@ void QgsSingleSymbolRendererV2Widget::setMapCanvas( QgsMapCanvas* canvas )
   QgsRendererV2Widget::setMapCanvas( canvas );
   if ( mSelector )
     mSelector->setMapCanvas( canvas );
+}
+
+void QgsSingleSymbolRendererV2Widget::setDockMode(bool dockMode)
+{
+  QgsRendererV2Widget::setDockMode( dockMode );
+ mDockMode = dockMode;
+  if ( mSelector )
+    mSelector->setDockMode( dockMode );
 }
 
 void QgsSingleSymbolRendererV2Widget::changeSingleSymbol()

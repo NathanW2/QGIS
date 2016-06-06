@@ -49,6 +49,8 @@ class GUI_EXPORT QgsRendererV2PropertiesDialog : public QDialog, private Ui::Qgs
      */
     void setMapCanvas( QgsMapCanvas* canvas );
 
+    void setDockMode( bool dockMode );
+
   signals:
     /**
      * Emitted when expression context variables on the associated
@@ -118,6 +120,9 @@ class GUI_EXPORT QgsRendererV2PropertiesDialog : public QDialog, private Ui::Qgs
     QgsMapCanvas* mMapCanvas;
 
     QgsFeatureRequest::OrderBy mOrderBy;
+
+  private:
+    bool mDockMode;
 };
 
 

@@ -569,6 +569,7 @@ void QgsCategorizedSymbolRendererV2Widget::changeCategorizedSymbol()
   QgsSymbolV2* newSymbol = mCategorizedSymbol->clone();
   QgsSymbolV2SelectorDialog* dlg = new QgsSymbolV2SelectorDialog( newSymbol, mStyle, mLayer, nullptr, true );
   dlg->setMapCanvas( mMapCanvas );
+  connect( dlg, SIGNAL(showPanel(QgsRendererWidgetContainer*)), this, SIGNAL(showPanel(QgsRendererWidgetContainer*)));
 
   QgsRendererWidgetContainer* container = new  QgsRendererWidgetContainer( dlg, "Select Symbol", nullptr );
   connect( dlg, SIGNAL( symbolModified() ), container, SLOT( emitWidgetChanged() ) );
@@ -615,6 +616,7 @@ void QgsCategorizedSymbolRendererV2Widget::changeCategorySymbol()
 
   QgsSymbolV2SelectorDialog* dlg = new QgsSymbolV2SelectorDialog( symbol, mStyle, mLayer, nullptr, true );
   dlg->setMapCanvas( mMapCanvas );
+  connect( dlg, SIGNAL(showPanel(QgsRendererWidgetContainer*)), this, SIGNAL(showPanel(QgsRendererWidgetContainer*)));
 
   QgsRendererWidgetContainer* container = new QgsRendererWidgetContainer( dlg, "Select Symbol", nullptr );
   connect( dlg, SIGNAL( symbolModified() ), container, SLOT( emitWidgetChanged() ) );

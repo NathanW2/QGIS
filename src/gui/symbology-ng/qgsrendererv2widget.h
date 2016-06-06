@@ -77,6 +77,7 @@ class GUI_EXPORT QgsRendererV2Widget : public QWidget
      */
     void applyChanges();
 
+    virtual void setDockMode( bool dockMode );
 
   signals:
     /**
@@ -99,6 +100,7 @@ class GUI_EXPORT QgsRendererV2Widget : public QWidget
     void showPanel( QgsRendererWidgetContainer* widget );
 
   protected:
+    bool mDockMode;
     QgsVectorLayer* mLayer;
     QgsStyleV2* mStyle;
     QMenu* contextMenu;

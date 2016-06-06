@@ -95,6 +95,7 @@ QgsRendererV2PropertiesDialog::QgsRendererV2PropertiesDialog( QgsVectorLayer* la
     layout()->setContentsMargins( 0, 0, 0, 0 );
   }
 
+  this->setDockMode( embedded );
 
   // initialize registry's widget functions
   _initRendererWidgetFunctions();
@@ -121,7 +122,6 @@ QgsRendererV2PropertiesDialog::QgsRendererV2PropertiesDialog( QgsVectorLayer* la
   connect( btnOrderBy, SIGNAL( clicked( bool ) ), this, SLOT( showOrderByDialog() ) );
   connect( mEffectWidget, SIGNAL( showPanel( QgsRendererWidgetContainer* ) ), this, SLOT( showPanel( QgsRendererWidgetContainer* ) ) );
 
-  mEffectWidget->setDockMode( true );
 
   syncToLayer();
 
@@ -195,6 +195,12 @@ void QgsRendererV2PropertiesDialog::setMapCanvas( QgsMapCanvas* canvas )
     mActiveWidget->setMapCanvas( mMapCanvas );
 }
 
+void QgsRendererV2PropertiesDialog::setDockMode(bool dockMode)
+{
+  mDockMode = dockMode;
+  mEffectWidget->setDockMode( dockMode );
+}
+
 
 void QgsRendererV2PropertiesDialog::rendererChanged()
 {
@@ -249,6 +255,7 @@ void QgsRendererV2PropertiesDialog::rendererChanged()
     }
     connect( mActiveWidget, SIGNAL( widgetChanged() ), this, SIGNAL( widgetChanged() ) );
     connect( mActiveWidget, SIGNAL( showPanel( QgsRendererWidgetContainer* ) ), this, SLOT( showPanel( QgsRendererWidgetContainer* ) ) );
+    w->setDockMode( mDockMode );
   }
   else
   {
@@ -301,8 +308,8 @@ void QgsRendererV2PropertiesDialog::showPanel( QgsRendererWidgetContainer *conta
 
 void QgsRendererV2PropertiesDialog::closePanel( QgsRendererWidgetContainer *container )
 {
-  this->mainStack->removeWidget( container );
   this->mainStack->setCurrentIndex( this->mainStack->currentIndex() - 1 );
+  this->mainStack->removeWidget( container );
   container->deleteLater();
 }
 

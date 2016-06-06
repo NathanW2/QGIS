@@ -282,6 +282,7 @@ void QgsMapStylingWidget::updateCurrentWidgetLayer()
       case 0: // Style
       {
         mVectorStyleWidget = new QgsRendererV2PropertiesDialog( vlayer, QgsStyleV2::defaultStyle(), true );
+        mVectorStyleWidget->setDockMode( true );
         connect( mVectorStyleWidget, SIGNAL( widgetChanged() ), this, SLOT( autoApply() ) );
         mWidgetArea->setWidget( mVectorStyleWidget );
         break;

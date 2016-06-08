@@ -61,3 +61,27 @@ QgsPanelWidgetPage::QgsPanelWidgetPage(QgsPanelWidget *widget, QWidget *parent)
 QgsPanelWidgetPage::~QgsPanelWidgetPage()
 {
 }
+
+QgsPanelWidgetStackWidget::QgsPanelWidgetStackWidget(QWidget *parent)
+        : QStackedWidget( parent )
+{
+
+}
+
+void QgsPanelWidgetStackWidget::showPanel(QgsPanelWidget *panel)
+{
+  QgsPanelWidgetPage* page = new QgsPanelWidgetPage( container, this->mainStack );
+
+  connect( page, SIGNAL( panelAccepted(QgsPanelWidget*)), this, SLOT( closePanel(QgsPanelWidget*)));
+  connect( page, SIGNAL( showPanel(QgsPanelWidget*)), this, SLOT( showPanel(QgsPanelWidget*)));
+
+  int index = this->addWidget( page );
+  this->setCurrentIndex( index );
+}
+
+void QgsPanelWidgetStackWidget::closePanel(QgsPanelWidget *panel)
+{
+  this->setCurrentIndex( this->currentIndex() - 1 );
+  this->removeWidget( panel );
+  panel->deleteLater();
+}

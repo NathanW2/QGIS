@@ -17,6 +17,7 @@
 
 #include <QWidget>
 #include <QKeyEvent>
+#include <QStackedWidget>
 
 #include "ui_qgsrenderercontainerbase.h"
 
@@ -122,6 +123,41 @@ class GUI_EXPORT QgsPanelWidgetPage : public QgsPanelWidget, private Ui::QgsRend
   ~QgsPanelWidgetPage();
 private:
   QWidget* mWidget;
+};
+
+
+/**
+ * A stack widget to manage panels in the interface. Handles the open and close events
+ * for added panels.
+ * Any widgets that want to have a non blocking panel based interface should use this
+ * class to manage the panels.
+ */
+class GUI_EXPORT QgsPanelWidgetStackWidget : public QStackedWidget
+{
+    Q_OBJECT
+public:
+
+/**
+  * A stack widget to manage panels in the interface. Handles the open and close events
+  * for added panels.
+  * @param parent
+  */
+  QgsPanelWidgetStackWidget( QWidget* parent = nullptr);
+
+public slots:
+  /**
+   * Show a panel in the stack widget. Will connect to the panels showPanel event to handle
+   * nested panels. Auto switches the the given panel for the user.
+   * @param panel The panel to show.
+   */
+  void showPanel( QgsPanelWidget* panel);
+
+  /**
+   * Closes the panel in the widget. Will also delete the widget.
+   * This slot is normally auto connected to panelAccepted when a panel is shown.
+   * @param panel The panel to close.
+   */
+  void closePanel( QgsPanelWidget* panel);
 };
 
 

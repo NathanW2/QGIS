@@ -68,9 +68,22 @@ QgsPanelWidgetStackWidget::QgsPanelWidgetStackWidget(QWidget *parent)
 
 }
 
+void QgsPanelWidgetStackWidget::connectPanels(QList<QgsPanelWidget *> panels)
+{
+  Q_FOREACH( QgsPanelWidget* widget, panels)
+    {
+       connectPanel(widget);
+    }
+}
+
+void QgsPanelWidgetStackWidget::connectPanel(QgsPanelWidget *panel)
+{
+   connect( panel, SIGNAL( showPanel( QgsPanelWidget* ) ), this, SLOT( showPanel( QgsPanelWidget* ) ) );
+}
+
 void QgsPanelWidgetStackWidget::showPanel(QgsPanelWidget *panel)
 {
-  QgsPanelWidgetPage* page = new QgsPanelWidgetPage( container, this->mainStack );
+  QgsPanelWidgetPage* page = new QgsPanelWidgetPage( panel, this );
 
   connect( page, SIGNAL( panelAccepted(QgsPanelWidget*)), this, SLOT( closePanel(QgsPanelWidget*)));
   connect( page, SIGNAL( showPanel(QgsPanelWidget*)), this, SLOT( showPanel(QgsPanelWidget*)));

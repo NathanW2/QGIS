@@ -20,14 +20,13 @@
 #include <QStackedWidget>
 #include "qgssymbolv2.h"
 #include "qgsdatadefined.h"
+#include "qgsrendererwidgetcontainer.h"
 
 class QgsVectorLayer;
 class QgsStyleV2;
 class QgsFeatureRendererV2;
 class QgsSymbolV2SelectorDialog;
 class QgsMapCanvas;
-class QgsPanelWidget;
-
 
 /**
   Base class for renderer settings widgets
@@ -39,7 +38,7 @@ WORKFLOW:
 - on any change of renderer type, create some default (dummy?) version and change the stacked widget
 - when clicked ok/apply, get the renderer from active widget and clone it for the layer
 */
-class GUI_EXPORT QgsRendererV2Widget : public QWidget
+class GUI_EXPORT QgsRendererV2Widget : public QgsPanelWidget
 {
     Q_OBJECT
   public:
@@ -92,12 +91,6 @@ class GUI_EXPORT QgsRendererV2Widget : public QWidget
      * All widgets will fire this event to notify of an internal change.
      */
     void widgetChanged();
-
-    /** Shows a panel widget inside the renderer widget.
-     * @param container widget panel to show
-     * @note added in QGIS 2.16
-     */
-    void showPanel( QgsPanelWidget* widget );
 
   protected:
     bool mDockMode;

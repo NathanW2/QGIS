@@ -75,18 +75,6 @@ class GUI_EXPORT QgsRendererV2PropertiesDialog : public QDialog, private Ui::Qgs
     //! Apply and accept the changes for the dialog.
     void onOK();
 
-    /** Shows a panel widget inside the renderer widget.
-     * @param container widget panel to show
-     * @note added in QGIS 2.16
-     */
-    void showPanel( QgsPanelWidget *container );
-
-    /**
-     * Closes the given panel in the stack of panels.
-     * @param container The container widget to close.
-     */
-    void closePanel( QgsPanelWidget *container );
-
   private slots:
     void showOrderByDialog();
 

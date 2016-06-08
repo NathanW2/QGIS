@@ -144,6 +144,10 @@ public:
   */
   QgsPanelWidgetStackWidget( QWidget* parent = nullptr);
 
+  void connectPanels( QList<QgsPanelWidget*> panels );
+
+  void connectPanel( QgsPanelWidget* panel );
+
 public slots:
   /**
    * Show a panel in the stack widget. Will connect to the panels showPanel event to handle

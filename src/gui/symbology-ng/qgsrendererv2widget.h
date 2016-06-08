@@ -26,7 +26,7 @@ class QgsStyleV2;
 class QgsFeatureRendererV2;
 class QgsSymbolV2SelectorDialog;
 class QgsMapCanvas;
-class QgsRendererWidgetContainer;
+class QgsPanelWidget;
 
 
 /**
@@ -97,7 +97,7 @@ class GUI_EXPORT QgsRendererV2Widget : public QWidget
      * @param container widget panel to show
      * @note added in QGIS 2.16
      */
-    void showPanel( QgsRendererWidgetContainer* widget );
+    void showPanel( QgsPanelWidget* widget );
 
   protected:
     bool mDockMode;

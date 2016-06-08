@@ -23,6 +23,7 @@ class QgsSymbolLayerV2;
 class QgsSymbolLayerV2Widget;
 class QgsVectorLayer;
 class QgsMapCanvas;
+class QgsPanelWidget;
 
 class SymbolLayerItem;
 
@@ -30,7 +31,7 @@ class SymbolLayerItem;
 #include <QStandardItemModel>
 
 
-class GUI_EXPORT QgsLayerPropertiesWidget : public QWidget, private Ui::LayerPropertiesWidget
+class GUI_EXPORT QgsLayerPropertiesWidget : public QgsPanelWidget, private Ui::LayerPropertiesWidget
 {
     Q_OBJECT
 
@@ -76,7 +77,7 @@ class GUI_EXPORT QgsLayerPropertiesWidget : public QWidget, private Ui::LayerPro
      * @param container widget panel to show
      * @note added in QGIS 2.16
      */
-    void showPanel( QgsRendererWidgetContainer* widget );
+    void showPanel( QgsPanelWidget* widget );
 
   protected:
     void populateLayerTypes();

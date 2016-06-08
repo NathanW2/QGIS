@@ -25,7 +25,7 @@
  * @brief A container widget that can be used to show a renderer widget with a title and close button.
  * @note Mainly used for the style dock panels at the moment.
  */
-class GUI_EXPORT QgsRendererWidgetContainer : public QWidget, private Ui::QgsRendererWidgetContainerBase
+class GUI_EXPORT QgsPanelWidget : public QWidget
 {
     Q_OBJECT
   public:
@@ -35,40 +35,32 @@ class GUI_EXPORT QgsRendererWidgetContainer : public QWidget, private Ui::QgsRen
      * @param title The title to show on the widget.
      * @param parent The parent of the widget.
      */
-    QgsRendererWidgetContainer( QWidget* widget, const QString &title, QWidget *parent = 0 );
+    QgsPanelWidget(QWidget *parent = 0 );
 
-    /**
-     * @brief Returns the current internal widget.
-     * @return The internal widget.
-     */
-    QWidget* widget();
+    void setPanelTitle( QString panelTitle ) { mPanelTitle = panelTitle; }
+    QString panelTitle() { return mPanelTitle; }
 
   signals:
     /**
       * @brief Emitted when the container is accpeted and closed.
       * Listen to this to clean up the callers state.
       */
-    void accepted( QgsRendererWidgetContainer* container );
+    void panelAccepted( QgsPanelWidget* container );
 
-    void showPanel( QgsRendererWidgetContainer* container );
+    void showPanel( QgsPanelWidget* container );
 
     /**
      * Emiited when the internal widget changes state.
-     * @param conatiner The container holding the widget that changed state.
      */
-    void widgetChanged( QgsRendererWidgetContainer* conatiner );
+    void widgetChanged( QgsPanelWidget* conatiner );
 
   public slots:
 
     /**
      * Accept the container. Causes accepted to be emiited.
      */
-    void accept();
+    void acceptPanel();
 
-    /**
-     * Fire the widgetChanged event on the container. Connect your widgets dirty signal to
-     * this slot to fire the and listen to widgetChanged to handle the event.
-     */
     void emitWidgetChanged();
 
   protected:
@@ -79,8 +71,20 @@ class GUI_EXPORT QgsRendererWidgetContainer : public QWidget, private Ui::QgsRen
     void keyPressEvent( QKeyEvent* event );
 
   private:
-    QWidget* mWidget;
+    QString mPanelTitle;
+
 
 };
+
+class GUI_EXPORT QgsPanelWidgetPage : public QgsPanelWidget, private Ui::QgsRendererWidgetContainerBase
+{
+    Q_OBJECT
+  public:
+  QgsPanelWidgetPage( QgsPanelWidget* widget, QWidget* parent = nullptr );
+  ~QgsPanelWidgetPage();
+private:
+  QWidget* mWidget;
+};
+
 
 #endif // QGSRENDERERWIDGETCONTAINER_H

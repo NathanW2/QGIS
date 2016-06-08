@@ -40,7 +40,7 @@ class QgsMarkerSymbolLayerV2;
 class QgsLineSymbolLayerV2;
 
 class QgsMapCanvas;
-class QgsRendererWidgetContainer;
+class QgsPanelWidget;
 
 /// @cond PRIVATE
 
@@ -142,7 +142,7 @@ class GUI_EXPORT QgsSymbolV2SelectorDialog : public QDialog, private Ui::QgsSymb
      * @param container widget panel to show
      * @note added in QGIS 2.16
      */
-    void showPanel( QgsRendererWidgetContainer* widget );
+    void showPanel( QgsPanelWidget* widget );
 
   public slots:
     void moveLayerDown();

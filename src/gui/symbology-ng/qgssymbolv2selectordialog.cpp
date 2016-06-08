@@ -449,7 +449,7 @@ void QgsSymbolV2SelectorDialog::layerChanged()
     connect( layerProp, SIGNAL( changed() ), this, SLOT( updateLayerPreview() ) );
     // This connection when layer type is changed
     connect( layerProp, SIGNAL( changeLayer( QgsSymbolLayerV2* ) ), this, SLOT( changeLayer( QgsSymbolLayerV2* ) ) );
-    connect( layerProp, SIGNAL( showPanel(QgsRendererWidgetContainer*)), this, SIGNAL( showPanel(QgsRendererWidgetContainer*)));
+    connect( layerProp, SIGNAL( showPanel(QgsPanelWidget*)), this, SIGNAL( showPanel(QgsPanelWidget*)));
   }
   else
   {

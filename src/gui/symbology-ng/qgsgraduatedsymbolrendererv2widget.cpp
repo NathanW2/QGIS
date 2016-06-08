@@ -688,18 +688,18 @@ void QgsGraduatedSymbolRendererV2Widget::refreshRanges( bool reset )
   emit widgetChanged();
 }
 
-void QgsGraduatedSymbolRendererV2Widget::cleanUpSymbolSelector( QgsRendererWidgetContainer *container )
+void QgsGraduatedSymbolRendererV2Widget::cleanUpSymbolSelector( QgsPanelWidget *container )
 {
   if ( container )
   {
-    QgsSymbolV2SelectorDialog* dlg = qobject_cast<QgsSymbolV2SelectorDialog*>( container->widget() );
+    QgsSymbolV2SelectorDialog* dlg = qobject_cast<QgsSymbolV2SelectorDialog*>( container );
     delete dlg->symbol();
   }
 }
 
-void QgsGraduatedSymbolRendererV2Widget::updateSymbolsFromWidget( QgsRendererWidgetContainer *container )
+void QgsGraduatedSymbolRendererV2Widget::updateSymbolsFromWidget( QgsPanelWidget *container )
 {
-  QgsSymbolV2SelectorDialog* dlg = qobject_cast<QgsSymbolV2SelectorDialog*>( container->widget() );
+  QgsSymbolV2SelectorDialog* dlg = qobject_cast<QgsSymbolV2SelectorDialog*>( container );
   delete mGraduatedSymbol;
   mGraduatedSymbol = dlg->symbol()->clone();
 
@@ -831,11 +831,11 @@ void QgsGraduatedSymbolRendererV2Widget::changeGraduatedSymbol()
   QgsSymbolV2SelectorDialog* dlg = new QgsSymbolV2SelectorDialog( newSymbol, mStyle, mLayer, nullptr, true );
   dlg->setMapCanvas( mMapCanvas );
 
-  QgsRendererWidgetContainer* container = new  QgsRendererWidgetContainer( dlg, "Select Symbol", nullptr );
-  connect( dlg, SIGNAL( symbolModified() ), container, SLOT( emitWidgetChanged() ) );
-  connect( container, SIGNAL( widgetChanged( QgsRendererWidgetContainer* ) ), this, SLOT( updateSymbolsFromWidget( QgsRendererWidgetContainer* ) ) );
-  connect( container, SIGNAL( accepted( QgsRendererWidgetContainer* ) ), this, SLOT( cleanUpSymbolSelector( QgsRendererWidgetContainer* ) ) );
-  emit showPanel( container );
+//  QgsPanelWidget* container = new  QgsPanelWidget( dlg, "Select Symbol", nullptr );
+//  connect( dlg, SIGNAL( symbolModified() ), container, SLOT( emitWidgetChanged() ) );
+//  connect( container, SIGNAL( widgetChanged( QgsPanelWidget* ) ), this, SLOT( updateSymbolsFromWidget( QgsPanelWidget* ) ) );
+//  connect( container, SIGNAL( accepted( QgsPanelWidget* ) ), this, SLOT( cleanUpSymbolSelector( QgsPanelWidget* ) ) );
+//  emit showPanel( container );
 }
 
 void QgsGraduatedSymbolRendererV2Widget::updateGraduatedSymbolIcon()
@@ -911,11 +911,11 @@ void QgsGraduatedSymbolRendererV2Widget::changeRangeSymbol( int rangeIdx )
   QgsSymbolV2SelectorDialog* dlg = new QgsSymbolV2SelectorDialog( newSymbol, mStyle, mLayer, nullptr, true );
   dlg->setMapCanvas( mMapCanvas );
 
-  QgsRendererWidgetContainer* container = new  QgsRendererWidgetContainer( dlg, "Select Symbol", nullptr );
-  connect( dlg, SIGNAL( symbolModified() ), container, SLOT( emitWidgetChanged() ) );
-  connect( container, SIGNAL( widgetChanged( QgsRendererWidgetContainer* ) ), this, SLOT( updateSymbolsFromWidget( QgsRendererWidgetContainer* ) ) );
-  connect( container, SIGNAL( accepted( QgsRendererWidgetContainer* ) ), this, SLOT( cleanUpSymbolSelector( QgsRendererWidgetContainer* ) ) );
-  emit showPanel( container );
+//  QgsPanelWidget* container = new  QgsPanelWidget( dlg, "Select Symbol", nullptr );
+//  connect( dlg, SIGNAL( symbolModified() ), container, SLOT( emitWidgetChanged() ) );
+//  connect( container, SIGNAL( widgetChanged( QgsPanelWidget* ) ), this, SLOT( updateSymbolsFromWidget( QgsPanelWidget* ) ) );
+//  connect( container, SIGNAL( accepted( QgsPanelWidget* ) ), this, SLOT( cleanUpSymbolSelector( QgsPanelWidget* ) ) );
+//  emit showPanel( container );
 }
 
 void QgsGraduatedSymbolRendererV2Widget::changeRange( int rangeIdx )

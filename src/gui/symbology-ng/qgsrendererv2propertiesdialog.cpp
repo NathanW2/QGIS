@@ -120,7 +120,7 @@ QgsRendererV2PropertiesDialog::QgsRendererV2PropertiesDialog( QgsVectorLayer* la
   connect( checkboxEnableOrderBy, SIGNAL( toggled( bool ) ), btnOrderBy, SLOT( setEnabled( bool ) ) );
   connect( checkboxEnableOrderBy, SIGNAL( toggled( bool ) ), lineEditOrderBy, SLOT( setEnabled( bool ) ) );
   connect( btnOrderBy, SIGNAL( clicked( bool ) ), this, SLOT( showOrderByDialog() ) );
-  connect( mEffectWidget, SIGNAL( showPanel( QgsRendererWidgetContainer* ) ), this, SLOT( showPanel( QgsRendererWidgetContainer* ) ) );
+  connect( mEffectWidget, SIGNAL( showPanel( QgsPanelWidget* ) ), this, SLOT( showPanel( QgsPanelWidget* ) ) );
 
 
   syncToLayer();
@@ -254,7 +254,7 @@ void QgsRendererV2PropertiesDialog::rendererChanged()
       connect( mActiveWidget, SIGNAL( layerVariablesChanged() ), this, SIGNAL( layerVariablesChanged() ) );
     }
     connect( mActiveWidget, SIGNAL( widgetChanged() ), this, SIGNAL( widgetChanged() ) );
-    connect( mActiveWidget, SIGNAL( showPanel( QgsRendererWidgetContainer* ) ), this, SLOT( showPanel( QgsRendererWidgetContainer* ) ) );
+    connect( mActiveWidget, SIGNAL( showPanel( QgsPanelWidget* ) ), this, SLOT( showPanel( QgsPanelWidget* ) ) );
     w->setDockMode( mDockMode );
   }
   else
@@ -298,16 +298,18 @@ void QgsRendererV2PropertiesDialog::onOK()
   accept();
 }
 
-void QgsRendererV2PropertiesDialog::showPanel( QgsRendererWidgetContainer *container )
+void QgsRendererV2PropertiesDialog::showPanel( QgsPanelWidget *container )
 {
-  connect( container, SIGNAL( accepted( QgsRendererWidgetContainer* ) ), this, SLOT( closePanel( QgsRendererWidgetContainer* ) ) );
-  connect( container, SIGNAL( showPanel(QgsRendererWidgetContainer*)), this, SLOT( showPanel(QgsRendererWidgetContainer*)));
+  QgsPanelWidgetPage* page = new QgsPanelWidgetPage( container, this->mainStack );
 
-  int page = this->mainStack->addWidget( container );
-  this->mainStack->setCurrentIndex( page );
+  connect( page, SIGNAL( panelAccepted(QgsPanelWidget*)), this, SLOT( closePanel(QgsPanelWidget*)));
+  connect( page, SIGNAL( showPanel(QgsPanelWidget*)), this, SLOT( showPanel(QgsPanelWidget*)));
+
+  int index = this->mainStack->addWidget( page );
+  this->mainStack->setCurrentIndex( index );
 }
 
-void QgsRendererV2PropertiesDialog::closePanel( QgsRendererWidgetContainer *container )
+void QgsRendererV2PropertiesDialog::closePanel( QgsPanelWidget *container )
 {
   this->mainStack->setCurrentIndex( this->mainStack->currentIndex() - 1 );
   this->mainStack->removeWidget( container );

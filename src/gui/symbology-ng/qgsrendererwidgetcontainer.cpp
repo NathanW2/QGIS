@@ -16,41 +16,48 @@
 #include <QPushButton>
 
 #include "qgsrendererwidgetcontainer.h"
+#include "qgslogger.h"
 
-QgsRendererWidgetContainer::QgsRendererWidgetContainer( QWidget *widget, const QString& title, QWidget *parent )
+QgsPanelWidget::QgsPanelWidget( QWidget *parent )
     : QWidget( parent )
-    , mWidget( widget )
 {
-  setupUi( this );
-  mWidgetLayout->addWidget( widget );
-  mWidgetLayout->setContentsMargins( 0, 0, 0, 0 );
-  mTitleText->setText( title );
-  QPushButton* button = mButtonBox->button( QDialogButtonBox::Close );
-  button->setDefault( true );
-  connect( button, SIGNAL( pressed() ), this, SLOT( accept() ) );
-
-  connect( widget, SIGNAL(showPanel(QgsRendererWidgetContainer*)), this, SIGNAL(showPanel(QgsRendererWidgetContainer*)));
 }
 
-QWidget *QgsRendererWidgetContainer::widget()
+void QgsPanelWidget::acceptPanel()
 {
-  return mWidget;
+  emit panelAccepted( this );
 }
 
-void QgsRendererWidgetContainer::accept()
-{
-  emit accepted( this );
-}
-
-void QgsRendererWidgetContainer::emitWidgetChanged()
+void QgsPanelWidget::emitWidgetChanged()
 {
   emit widgetChanged( this );
 }
 
-void QgsRendererWidgetContainer::keyPressEvent( QKeyEvent *event )
+void QgsPanelWidget::keyPressEvent( QKeyEvent *event )
 {
   if ( event->key() == Qt::Key_Escape )
   {
-    accept();
+    QgsDebugMsg("ESC!!!!");
+    acceptPanel();
   }
+}
+
+QgsPanelWidgetPage::QgsPanelWidgetPage(QgsPanelWidget *widget, QWidget *parent)
+  : QgsPanelWidget( parent )
+  , mWidget( widget )
+{
+  setupUi( this );
+  mWidgetLayout->addWidget( widget );
+  mWidgetLayout->setContentsMargins( 0, 0, 0, 0 );
+  mTitleText->setText( widget->panelTitle() );
+  QPushButton* button = mButtonBox->button( QDialogButtonBox::Close );
+  button->setDefault( true );
+
+  connect( button, SIGNAL( pressed() ), this, SLOT( acceptPanel() ) );
+  connect( widget, SIGNAL( panelAccepted(QgsPanelWidget*)), this, SLOT(acceptPanel()));
+  connect( widget, SIGNAL(showPanel(QgsPanelWidget*)), this, SIGNAL(showPanel(QgsPanelWidget*)));
+}
+
+QgsPanelWidgetPage::~QgsPanelWidgetPage()
+{
 }

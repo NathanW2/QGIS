@@ -9032,12 +9032,12 @@ void QgisApp::unregisterMapLayerPropertiesFactory( QgsMapLayerPropertiesFactory*
   mMapLayerPropertiesFactories.removeAll( factory );
 }
 
-void QgisApp::registerMapStylePanelFactory( QgsMapStylePanelFactory *factory )
+void QgisApp::registerMapStylePanelFactory( QgsMapStylingPanelFactory *factory )
 {
   mMapStylePanelFactories << factory;
 }
 
-void QgisApp::unregisterMapStylePanelFactory( QgsMapStylePanelFactory *factory )
+void QgisApp::unregisterMapStylePanelFactory( QgsMapStylingPanelFactory *factory )
 {
   mMapStylePanelFactories.removeAll( factory );
 }

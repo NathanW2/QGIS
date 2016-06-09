@@ -23,6 +23,19 @@ QgsPanelWidget::QgsPanelWidget( QWidget *parent )
 {
 }
 
+void QgsPanelWidget::connectChildPanels(QList<QgsPanelWidget *> panels)
+{
+  Q_FOREACH( QgsPanelWidget* widget, panels)
+    {
+       connectPanel(widget);
+    }
+}
+
+void QgsPanelWidget::connectChildPanel(QgsPanelWidget *panel)
+{
+  connect( panel, SIGNAL( showPanel( QgsPanelWidget* ) ), this, SLOT( showPanel( QgsPanelWidget* ) ) );
+}
+
 void QgsPanelWidget::acceptPanel()
 {
   emit panelAccepted( this );
@@ -78,7 +91,15 @@ void QgsPanelWidgetStackWidget::connectPanels(QList<QgsPanelWidget *> panels)
 
 void QgsPanelWidgetStackWidget::connectPanel(QgsPanelWidget *panel)
 {
-   connect( panel, SIGNAL( showPanel( QgsPanelWidget* ) ), this, SLOT( showPanel( QgsPanelWidget* ) ) );
+  connect( panel, SIGNAL( showPanel( QgsPanelWidget* ) ), this, SLOT( showPanel( QgsPanelWidget* ) ) );
+}
+
+void QgsPanelWidgetStackWidget::addMainPanel(QgsPanelWidget *panel)
+{
+  // TODO Don't allow adding another main widget or else that would be strange for the user.
+  connect( panel, SIGNAL( showPanel(QgsPanelWidget*)), this, SLOT( showPanel(QgsPanelWidget*)));
+  this->insertWidget(0, panel );
+  this->setCurrentIndex( 0 );
 }
 
 void QgsPanelWidgetStackWidget::showPanel(QgsPanelWidget *panel)

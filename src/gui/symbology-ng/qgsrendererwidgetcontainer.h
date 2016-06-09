@@ -47,6 +47,24 @@ class GUI_EXPORT QgsPanelWidget : public QWidget
      */
     QString panelTitle() { return mPanelTitle; }
 
+    /**
+   * Connect the given sub panel widgets showPanel signals to this current panels
+   * main showPanel event to bubble up to the user.
+   *
+   * Use this method if you have children widgets that need to show a panel to the user.
+   * @param panels A list of panel widgets to connect.
+   */
+  void connectChildPanels( QList<QgsPanelWidget*> panels );
+
+  /**
+   * Connect the given sub panel widgets showPanel signals to this current panels
+   * main showPanel event to bubble up to the user.
+   *
+   * Use this method if you have children widgets that need to show a panel to the user.
+   * @param panel The panel to connect.
+   */
+  void connectChildPanel( QgsPanelWidget* panel );
+
   signals:
 
     /**
@@ -147,6 +165,14 @@ public:
   void connectPanels( QList<QgsPanelWidget*> panels );
 
   void connectPanel( QgsPanelWidget* panel );
+
+  /**
+   * Adds the main widget to the stack and selects it for the user
+   * The main widget can not be closed and only the showPanel signal is attached
+   * to handle children widget opening panels.
+   * @param panel The panel to set as the first widget in the stack.
+   */
+  void addMainPanel( QgsPanelWidget* panel );
 
 public slots:
   /**

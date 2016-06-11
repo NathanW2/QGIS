@@ -13,7 +13,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "qgsmapstylepanel.h"
-#include "qgsrendererwidgetcontainer.h"
+#include "qgspanelwidget.h"
 
 QgsMapStylingPanel::QgsMapStylingPanel( QgsMapLayer *layer, QgsMapCanvas *canvas, QWidget *parent )
     : QgsPanelWidget( parent )

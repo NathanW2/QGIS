@@ -14,7 +14,7 @@
  ***************************************************************************/
 
 #include "qgscategorizedsymbolrendererv2widget.h"
-#include "qgsrendererwidgetcontainer.h"
+#include "qgspanelwidget.h"
 
 #include "qgscategorizedsymbolrendererv2.h"
 

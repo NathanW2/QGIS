@@ -31,7 +31,6 @@ class QgsSymbolV2;
 class QgsPaintEffect;
 class QgsRendererV2Widget;
 class QgsMapCanvas;
-class QgsPanelWidget;
 
 
 class GUI_EXPORT QgsRendererV2PropertiesDialog : public QDialog, private Ui::QgsRendererV2PropsDialogBase

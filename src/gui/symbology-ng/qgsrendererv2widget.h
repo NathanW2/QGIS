@@ -20,7 +20,7 @@
 #include <QStackedWidget>
 #include "qgssymbolv2.h"
 #include "qgsdatadefined.h"
-#include "qgsrendererwidgetcontainer.h"
+#include "qgspanelwidget.h"
 
 class QgsVectorLayer;
 class QgsStyleV2;
@@ -76,7 +76,13 @@ class GUI_EXPORT QgsRendererV2Widget : public QgsPanelWidget
      */
     void applyChanges();
 
-    virtual void setDockMode( bool dockMode );
+    /**
+     * Set the widget in dock mode which tells the widget to emit panel
+     * widgets and not open dialogs
+     * @param dockMode True to enable dock mode.
+     */
+    virtual void setDockMode( bool dockMode ) override;
+
 
   signals:
     /**

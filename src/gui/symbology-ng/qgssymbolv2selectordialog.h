@@ -21,7 +21,7 @@
 #include "ui_qgssymbolv2selectordialogbase.h"
 
 #include "qgsdatadefined.h"
-#include "qgsrendererwidgetcontainer.h"
+#include "qgspanelwidget.h"
 
 #include <QStandardItemModel>
 #include <QScopedPointer>

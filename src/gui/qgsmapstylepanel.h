@@ -19,7 +19,7 @@
 #include <QIcon>
 
 #include "qgsmaplayer.h"
-#include "qgsrendererwidgetcontainer.h"
+#include "qgspanelwidget.h"
 
 class QgsMapCanvas;
 

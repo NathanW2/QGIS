@@ -19,7 +19,7 @@
 #include "qgssymbollevelsv2dialog.h"
 #include "qgsexpressionbuilderdialog.h"
 #include "qgsmapcanvas.h"
-#include "qgsrendererwidgetcontainer.h"
+#include "qgspanelwidget.h"
 
 #include <QMessageBox>
 #include <QInputDialog>
@@ -272,7 +272,7 @@ void QgsRendererV2Widget::applyChanges()
   apply();
 }
 
-void QgsRendererV2Widget::setDockMode(bool dockMode)
+void QgsRendererV2Widget::setDockMode( bool dockMode )
 {
   mDockMode = dockMode;
 }

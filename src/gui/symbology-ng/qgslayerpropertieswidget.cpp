@@ -32,7 +32,7 @@
 #include "qgsellipsesymbollayerv2widget.h"
 #include "qgsvectorfieldsymbollayerwidget.h"
 #include "qgssymbolv2.h" //for the unit
-#include "qgsrendererwidgetcontainer.h"
+#include "qgspanelwidget.h"
 
 static bool _initWidgetFunction( const QString& name, QgsSymbolLayerV2WidgetFunc f )
 {

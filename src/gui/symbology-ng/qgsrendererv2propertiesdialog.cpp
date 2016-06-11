@@ -27,7 +27,7 @@
 #include "qgsheatmaprendererwidget.h"
 #include "qgs25drendererwidget.h"
 #include "qgsnullsymbolrendererwidget.h"
-#include "qgsrendererwidgetcontainer.h"
+#include "qgspanelwidget.h"
 
 #include "qgsorderbydialog.h"
 #include "qgsapplication.h"
@@ -197,7 +197,7 @@ void QgsRendererV2PropertiesDialog::setMapCanvas( QgsMapCanvas* canvas )
     mActiveWidget->setMapCanvas( mMapCanvas );
 }
 
-void QgsRendererV2PropertiesDialog::setDockMode(bool dockMode)
+void QgsRendererV2PropertiesDialog::setDockMode( bool dockMode )
 {
   mDockMode = dockMode;
   mEffectWidget->setDockMode( dockMode );

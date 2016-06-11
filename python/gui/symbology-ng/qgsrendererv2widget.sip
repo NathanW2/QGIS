@@ -1,4 +1,4 @@
-class QgsRendererV2Widget : QWidget
+class QgsRendererV2Widget : QgsPanelWidget
 {
 %TypeHeaderCode
 #include <qgsrendererv2widget.h>
@@ -38,6 +38,13 @@ class QgsRendererV2Widget : QWidget
      * This method should be called whenever the renderer is actually set on the layer.
      */
     void applyChanges();
+
+    /**
+     * Set the widget in dock mode which tells the widget to emit panel
+     * widgets and not open dialogs
+     * @param dockMode True to enable dock mode.
+     */
+    virtual void setDockMode( bool dockMode);
 
   signals:
     /**

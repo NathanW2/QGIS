@@ -13,7 +13,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "qgsgraduatedsymbolrendererv2widget.h"
-#include "qgsrendererwidgetcontainer.h"
+#include "qgspanelwidget.h"
 
 #include "qgssymbolv2.h"
 #include "qgssymbollayerv2utils.h"

@@ -21,7 +21,7 @@
 #include "qgspainteffectwidget.h"
 #include "qgsapplication.h"
 #include "qgssymbollayerv2utils.h"
-#include "qgsrendererwidgetcontainer.h"
+#include "qgspanelwidget.h"
 
 #include <QPicture>
 #include <QPainter>

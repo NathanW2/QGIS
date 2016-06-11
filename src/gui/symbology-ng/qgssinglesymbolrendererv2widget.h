@@ -36,6 +36,11 @@ class GUI_EXPORT QgsSingleSymbolRendererV2Widget : public QgsRendererV2Widget
 
     virtual void setMapCanvas( QgsMapCanvas* canvas ) override;
 
+    /**
+     * Set the widget in dock mode which tells the widget to emit panel
+     * widgets and not open dialogs
+     * @param dockMode True to enable dock mode.
+     */
     virtual void setDockMode( bool dockMode ) override;
 
   public slots:

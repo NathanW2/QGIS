@@ -53,6 +53,11 @@ class GUI_EXPORT QgsLayerPropertiesWidget : public QgsPanelWidget, private Ui::L
      */
     virtual void setMapCanvas( QgsMapCanvas* canvas );
 
+    /**
+     * Set the widget in dock mode which tells the widget to emit panel
+     * widgets and not open dialogs
+     * @param dockMode True to enable dock mode.
+     */
     void setDockMode( bool dockMode );
 
   public slots:
@@ -72,12 +77,6 @@ class GUI_EXPORT QgsLayerPropertiesWidget : public QgsPanelWidget, private Ui::L
   signals:
     void changed();
     void changeLayer( QgsSymbolLayerV2* );
-
-    /** Shows a panel widget inside the renderer widget.
-     * @param container widget panel to show
-     * @note added in QGIS 2.16
-     */
-    void showPanel( QgsPanelWidget* widget );
 
   protected:
     void populateLayerTypes();

@@ -20,7 +20,7 @@
 #include "effects/qgseffectstack.h"
 #include <QWidget>
 #include <QStandardItemModel>
-#include <qgsrendererwidgetcontainer.h>
+#include <qgspanelwidget.h>
 
 #include "ui_qgseffectstackpropertieswidgetbase.h"
 

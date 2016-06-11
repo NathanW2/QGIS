@@ -18,7 +18,7 @@
 #include "qgsrendererv2widget.h"
 
 class QgsSingleSymbolRendererV2;
-class QgsSymbolV2SelectorDialog;
+class QgsSymbolV2SelectorWidget;
 
 class QMenu;
 
@@ -49,7 +49,7 @@ class GUI_EXPORT QgsSingleSymbolRendererV2Widget : public QgsRendererV2Widget
   protected:
 
     QgsSingleSymbolRendererV2* mRenderer;
-    QgsSymbolV2SelectorDialog* mSelector;
+    QgsSymbolV2SelectorWidget* mSelector;
     QgsSymbolV2* mSingleSymbol;
 };
 

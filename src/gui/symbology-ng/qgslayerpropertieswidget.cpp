@@ -120,7 +120,8 @@ QgsLayerPropertiesWidget::QgsLayerPropertiesWidget( QgsSymbolLayerV2* layer, con
   connect( cboLayerType, SIGNAL( currentIndexChanged( int ) ), this, SLOT( layerTypeChanged() ) );
 
   connect( mEffectWidget, SIGNAL( changed() ), this, SLOT( emitSignalChanged() ) );
-  connect( mEffectWidget, SIGNAL( showPanel(QgsPanelWidget*) ), this, SIGNAL(showPanel(QgsPanelWidget*)));
+
+  this->connectChildPanel( mEffectWidget );
 
   mEffectWidget->setPaintEffect( mLayer->paintEffect() );
 }
@@ -133,12 +134,13 @@ void QgsLayerPropertiesWidget::setMapCanvas( QgsMapCanvas *canvas )
     w->setMapCanvas( mMapCanvas );
 }
 
-void QgsLayerPropertiesWidget::setDockMode(bool dockMode)
+void QgsLayerPropertiesWidget::setDockMode( bool dockMode )
 {
   mDockMode = dockMode;
   if ( dockMode )
-    QgsDebugMsg("DOCK MODE!!!!!!!11");
-  mEffectWidget->setDockMode( dockMode );
+  {
+    mEffectWidget->setDockMode( dockMode );
+  }
 }
 
 void QgsLayerPropertiesWidget::setExpressionContext( QgsExpressionContext *context )
@@ -238,6 +240,7 @@ void QgsLayerPropertiesWidget::emitSignalChanged()
 
   // also update paint effect preview
   mEffectWidget->setPreviewPicture( QgsSymbolLayerV2Utils::symbolLayerPreviewPicture( mLayer, QgsSymbolV2::MM, QSize( 80, 80 ) ) );
+  emit widgetChanged();
 }
 
 void QgsLayerPropertiesWidget::reloadLayer()

@@ -23,17 +23,18 @@ QgsPanelWidget::QgsPanelWidget( QWidget *parent )
 {
 }
 
-void QgsPanelWidget::connectChildPanels(QList<QgsPanelWidget *> panels)
+void QgsPanelWidget::connectChildPanels( QList<QgsPanelWidget *> panels )
 {
-  Q_FOREACH( QgsPanelWidget* widget, panels)
-    {
-       connectPanel(widget);
-    }
+  Q_FOREACH ( QgsPanelWidget* widget, panels )
+  {
+    connectChildPanel( widget );
+  }
 }
 
-void QgsPanelWidget::connectChildPanel(QgsPanelWidget *panel)
+void QgsPanelWidget::connectChildPanel( QgsPanelWidget *panel )
 {
-  connect( panel, SIGNAL( showPanel( QgsPanelWidget* ) ), this, SLOT( showPanel( QgsPanelWidget* ) ) );
+  connect( panel, SIGNAL( showPanel( QgsPanelWidget* ) ), this, SIGNAL( showPanel( QgsPanelWidget* ) ) );
+  connect( panel, SIGNAL( widgetChanged() ), this, SIGNAL( widgetChanged() ) );
 }
 
 void QgsPanelWidget::acceptPanel()
@@ -41,81 +42,88 @@ void QgsPanelWidget::acceptPanel()
   emit panelAccepted( this );
 }
 
-void QgsPanelWidget::emitWidgetChanged()
-{
-  emit widgetChanged( this );
-}
-
 void QgsPanelWidget::keyPressEvent( QKeyEvent *event )
 {
   if ( event->key() == Qt::Key_Escape )
   {
-    QgsDebugMsg("ESC!!!!");
     acceptPanel();
   }
 }
 
-QgsPanelWidgetPage::QgsPanelWidgetPage(QgsPanelWidget *widget, QWidget *parent)
-  : QgsPanelWidget( parent )
-  , mWidget( widget )
+QgsPanelWidgetPage::QgsPanelWidgetPage( QgsPanelWidget *widget, QWidget *parent )
+    : QgsPanelWidget( parent )
+    , mWidget( widget )
 {
   setupUi( this );
   mWidgetLayout->addWidget( widget );
   mWidgetLayout->setContentsMargins( 0, 0, 0, 0 );
   mTitleText->setText( widget->panelTitle() );
-  QPushButton* button = mButtonBox->button( QDialogButtonBox::Close );
-  button->setDefault( true );
 
-  connect( button, SIGNAL( pressed() ), this, SLOT( acceptPanel() ) );
-  connect( widget, SIGNAL( panelAccepted(QgsPanelWidget*)), this, SLOT(acceptPanel()));
-  connect( widget, SIGNAL(showPanel(QgsPanelWidget*)), this, SIGNAL(showPanel(QgsPanelWidget*)));
+  connect( mBackButton, SIGNAL( pressed() ), this, SLOT( acceptPanel() ) );
+  connect( widget, SIGNAL( panelAccepted( QgsPanelWidget* ) ), this, SLOT( acceptPanel() ) );
+  connect( widget, SIGNAL( showPanel( QgsPanelWidget* ) ), this, SIGNAL( showPanel( QgsPanelWidget* ) ) );
 }
 
 QgsPanelWidgetPage::~QgsPanelWidgetPage()
 {
 }
 
-QgsPanelWidgetStackWidget::QgsPanelWidgetStackWidget(QWidget *parent)
-        : QStackedWidget( parent )
+void QgsPanelWidgetPage::setTitle( QString title )
+{
+  mTitleText->setText( title );
+}
+
+QgsPanelWidgetStackWidget::QgsPanelWidgetStackWidget( QWidget *parent )
+    : QStackedWidget( parent )
 {
 
 }
 
-void QgsPanelWidgetStackWidget::connectPanels(QList<QgsPanelWidget *> panels)
+void QgsPanelWidgetStackWidget::connectPanels( QList<QgsPanelWidget *> panels )
 {
-  Q_FOREACH( QgsPanelWidget* widget, panels)
-    {
-       connectPanel(widget);
-    }
+  Q_FOREACH ( QgsPanelWidget* widget, panels )
+  {
+    connectPanel( widget );
+  }
 }
 
-void QgsPanelWidgetStackWidget::connectPanel(QgsPanelWidget *panel)
+void QgsPanelWidgetStackWidget::connectPanel( QgsPanelWidget *panel )
 {
   connect( panel, SIGNAL( showPanel( QgsPanelWidget* ) ), this, SLOT( showPanel( QgsPanelWidget* ) ) );
 }
 
-void QgsPanelWidgetStackWidget::addMainPanel(QgsPanelWidget *panel)
+void QgsPanelWidgetStackWidget::addMainPanel( QgsPanelWidget *panel )
 {
   // TODO Don't allow adding another main widget or else that would be strange for the user.
-  connect( panel, SIGNAL( showPanel(QgsPanelWidget*)), this, SLOT( showPanel(QgsPanelWidget*)));
-  this->insertWidget(0, panel );
+  connect( panel, SIGNAL( showPanel( QgsPanelWidget* ) ), this, SLOT( showPanel( QgsPanelWidget* ) ) );
+  this->insertWidget( 0, panel );
   this->setCurrentIndex( 0 );
 }
 
-void QgsPanelWidgetStackWidget::showPanel(QgsPanelWidget *panel)
+void QgsPanelWidgetStackWidget::showPanel( QgsPanelWidget *panel )
 {
-  QgsPanelWidgetPage* page = new QgsPanelWidgetPage( panel, this );
+  mTitles.push( panel->panelTitle() );
+  QString breadcrumb;
+  Q_FOREACH ( QString title, mTitles )
+  {
+    breadcrumb += QString( " %1 >" ).arg( title );
+  }
+  breadcrumb.chop( 1 );
 
-  connect( page, SIGNAL( panelAccepted(QgsPanelWidget*)), this, SLOT( closePanel(QgsPanelWidget*)));
-  connect( page, SIGNAL( showPanel(QgsPanelWidget*)), this, SLOT( showPanel(QgsPanelWidget*)));
+  QgsPanelWidgetPage* page = new QgsPanelWidgetPage( panel, this );
+  page->setTitle( breadcrumb );
+
+  connect( page, SIGNAL( panelAccepted( QgsPanelWidget* ) ), this, SLOT( closePanel( QgsPanelWidget* ) ) );
+  connect( page, SIGNAL( showPanel( QgsPanelWidget* ) ), this, SLOT( showPanel( QgsPanelWidget* ) ) );
 
   int index = this->addWidget( page );
   this->setCurrentIndex( index );
 }
 
-void QgsPanelWidgetStackWidget::closePanel(QgsPanelWidget *panel)
+void QgsPanelWidgetStackWidget::closePanel( QgsPanelWidget *panel )
 {
   this->setCurrentIndex( this->currentIndex() - 1 );
   this->removeWidget( panel );
+  mTitles.pop();
   panel->deleteLater();
 }

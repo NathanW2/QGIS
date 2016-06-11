@@ -239,7 +239,7 @@ class GUI_EXPORT QgsEffectStackCompactWidget: public QgsPanelWidget
     void enableToggled( bool checked );
 
     void updateAcceptWidget( QgsPanelWidget* panel );
-    void updateEffectLive(QgsPanelWidget *panel );
+    void updateEffectLive();
 
   private:
     bool mDockMode;

@@ -19,9 +19,9 @@
 #include <QIcon>
 
 #include "qgsmaplayer.h"
+#include "qgsrendererwidgetcontainer.h"
 
 class QgsMapCanvas;
-class QgsPanelWidget;
 
 /** \ingroup gui
  * \class QgsMapStylePanel

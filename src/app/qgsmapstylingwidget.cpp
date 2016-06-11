@@ -262,8 +262,8 @@ void QgsMapStylingWidget::updateCurrentWidgetLayer()
     QgsMapStylingPanel* panel = mUserPages[row]->createPanel( layer, mMapCanvas, this );
     if ( panel )
     {
-      connnect( panel, SIGNAL(widgetChanged(QgsPanelWidget*)), this, SLOT(autoApply()));
-      QgsPanelWidgetStackWidget* stack = new QgsPanelWidgetStackWidget(mWidgetArea);
+      connect( panel, SIGNAL( widgetChanged( QgsPanelWidget* ) ), this, SLOT( autoApply() ) );
+      QgsPanelWidgetStackWidget* stack = new QgsPanelWidgetStackWidget( mWidgetArea );
       mWidgetArea->setWidget( stack );
       stack->addMainPanel( panel );
     }

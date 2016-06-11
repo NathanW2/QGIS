@@ -120,7 +120,7 @@ class GUI_EXPORT QgsGraduatedSymbolRendererV2Widget : public QgsRendererV2Widget
 
   private slots:
     void cleanUpSymbolSelector( QgsPanelWidget* container );
-    void updateSymbolsFromWidget( QgsPanelWidget *container );
+    void updateSymbolsFromWidget();
 
   protected:
     void updateUiFromRenderer( bool updateCount = true );

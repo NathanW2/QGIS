@@ -134,7 +134,7 @@ QgsEffectStackPropertiesWidget::QgsEffectStackPropertiesWidget( QgsEffectStack *
   QModelIndex newIndex = mEffectsList->model()->index( 0, 0 );
   mEffectsList->setCurrentIndex( newIndex );
 
-  setPanelTitle( tr("Effects Properties"));
+  setPanelTitle( tr( "Effects Properties" ) );
 }
 
 QgsEffectStackPropertiesWidget::~QgsEffectStackPropertiesWidget()
@@ -222,7 +222,7 @@ void QgsEffectStackPropertiesWidget::updatePreview()
   painter.end();
 
   lblPreview->setPixmap( QPixmap::fromImage( previewImage ) );
-  emitWidgetChanged();
+  emit widgetChanged();
 }
 
 EffectItem* QgsEffectStackPropertiesWidget::currentEffectItem()
@@ -459,8 +459,8 @@ void QgsEffectStackCompactWidget::showDialog()
     {
       widget->setPreviewPicture( *mPreviewPicture );
     }
-    connect( widget, SIGNAL( widgetChanged( QgsPanelWidget* ) ), this, SLOT( updateEffectLive( QgsPanelWidget* ) ) );
-    connect( widget, SIGNAL( panelAccepted(QgsPanelWidget*)), this, SLOT( updateAcceptWidget(QgsPanelWidget*)));
+    connect( widget, SIGNAL( widgetChanged() ), this, SLOT( updateEffectLive() ) );
+    connect( widget, SIGNAL( panelAccepted( QgsPanelWidget* ) ), this, SLOT( updateAcceptWidget( QgsPanelWidget* ) ) );
     emit showPanel( widget );
   }
   else
@@ -500,9 +500,9 @@ void QgsEffectStackCompactWidget::updateAcceptWidget( QgsPanelWidget *panel )
 //    delete widget->stack();
 }
 
-void QgsEffectStackCompactWidget::updateEffectLive( QgsPanelWidget *panel )
+void QgsEffectStackCompactWidget::updateEffectLive()
 {
-  QgsEffectStackPropertiesWidget* widget = qobject_cast<QgsEffectStackPropertiesWidget*>( panel );
+  QgsEffectStackPropertiesWidget* widget = qobject_cast<QgsEffectStackPropertiesWidget*>( sender() );
   *mStack = *widget->stack();
   emit changed();
 }

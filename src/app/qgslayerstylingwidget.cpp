@@ -173,7 +173,7 @@ void QgsLayerStylingWidget::setLayer( QgsMapLayer *layer )
 
   Q_FOREACH ( QgsMapLayerConfigWidgetFactory* factory, mPageFactories )
   {
-    if ( factory->supportsLayer( layer ) )
+    if ( factory->supportsStyleDock() && factory->supportsLayer( layer ) )
     {
       QListWidgetItem* item =  new QListWidgetItem( factory->icon(), QString() );
       mOptionsListWidget->addItem( item );
@@ -317,7 +317,7 @@ void QgsLayerStylingWidget::updateCurrentWidgetLayer()
   // TODO Make all widgets use this method.
   if ( mUserPages.contains( row ) )
   {
-    QgsMapLayerConfigWidget* panel = mUserPages[row]->createWidget( mCurrentLayer, mMapCanvas, mWidgetStack );
+    QgsMapLayerConfigWidget* panel = mUserPages[row]->createWidget( mCurrentLayer, mMapCanvas, true, mWidgetStack );
     if ( panel )
     {
       connect( panel, SIGNAL( widgetChanged( QgsPanelWidget* ) ), this, SLOT( autoApply() ) );

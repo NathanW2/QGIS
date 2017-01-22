@@ -785,6 +785,38 @@ int main( int argc, char *argv[] )
     exit( 1 ); //exit for now until a version of qgis is capabable of running non interactive
   }
 
+  // As of QGIS 3 all QGIS settings will come from QGIS\profiles
+  // default profile will be loaded from .default
+  // which contains the name of the startup default profile.
+
+  if ( optionpath.isEmpty() || configpath.isEmpty() )
+  {
+    QString profileFolder = QStandardPaths::standardLocations( QStandardPaths::HomeLocation ).at( 0 )
+                            + QDir::separator()
+                            + "QGIS"
+                            + QDir::separator()
+                            + "profiles";
+    QString profileName = "default";
+    QFile f( profileFolder + QDir::separator() + ".default" );
+    if ( f.exists() )
+    {
+      if ( f.open( QFile::ReadOnly | QFile::Text ) )
+      {
+        QTextStream in( &f );
+        profileName = in.readAll();
+      }
+    }
+    else
+    {
+      if ( f.open( QFile::WriteOnly | QFile::Text ) )
+      {
+        QTextStream out( &f );
+        out << profileName;
+      }
+    }
+    configpath = profileFolder + QDir::separator() + profileName;
+  }
+
   if ( !optionpath.isEmpty() || !configpath.isEmpty() )
   {
     // tell QSettings to use INI format and save the file in custom config path

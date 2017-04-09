@@ -312,6 +312,7 @@ SET(QGIS_GUI_SRCS
   qgstreewidgetitem.cpp
   qgsunitselectionwidget.cpp
   qgsuserinputdockwidget.cpp
+  qgsuserprofilemanagerwidget.cpp
   qgsvariableeditorwidget.cpp
   qgsvertexmarker.cpp
   qgsfiledownloader.cpp
@@ -459,6 +460,7 @@ SET(QGIS_GUI_MOC_HDRS
   qgstreewidgetitem.h
   qgsunitselectionwidget.h
   qgsuserinputdockwidget.h
+  qgsuserprofilemanagerwidget.h
   qgsvariableeditorwidget.h
   qgsfiledownloader.h
 

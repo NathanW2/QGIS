@@ -19,12 +19,14 @@
 #include <QListWidgetItem>
 #include "qgis_gui.h"
 
+#include "qgspanelwidget.h"
+
 /** \ingroup gui
  * \class QgsOptionsPageWidget
  * Base class for widgets for pages included in the options dialog.
  * \since QGIS 3.0
  */
-class GUI_EXPORT QgsOptionsPageWidget : public QWidget
+class GUI_EXPORT QgsOptionsPageWidget : public QgsPanelWidget
 {
     Q_OBJECT
 
@@ -34,7 +36,7 @@ class GUI_EXPORT QgsOptionsPageWidget : public QWidget
      * Constructor for QgsOptionsPageWidget.
      */
     QgsOptionsPageWidget( QWidget *parent = nullptr )
-      : QWidget( parent )
+      : QgsPanelWidget( parent )
     {}
 
   public slots:

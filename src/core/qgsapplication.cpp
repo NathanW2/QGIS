@@ -36,6 +36,8 @@
 #include "qgspluginlayerregistry.h"
 #include "qgsmessagelog.h"
 #include "qgsannotationregistry.h"
+#include "qgsuserprofilemanager.h"
+#include "qgsuserprofile.h"
 #include "qgssettings.h"
 
 #include "gps/qgsgpsconnectionregistry.h"
@@ -114,20 +116,8 @@ QgsApplication::QgsApplication( int &argc, char **argv, bool GUIenabled, const Q
   init( customConfigPath ); // init can also be called directly by e.g. unit tests that don't inherit QApplication.
 }
 
-void QgsApplication::init( QString customConfigPath )
+void QgsApplication::init( QString configPath )
 {
-  if ( customConfigPath.isEmpty() )
-  {
-    if ( getenv( "QGIS_CUSTOM_CONFIG_PATH" ) )
-    {
-      customConfigPath = getenv( "QGIS_CUSTOM_CONFIG_PATH" );
-    }
-    else
-    {
-      customConfigPath = QStringLiteral( "%1/.qgis3/" ).arg( QDir::homePath() );
-    }
-  }
-
   qRegisterMetaType<QgsGeometry::Error>( "QgsGeometry::Error" );
 
   QString prefixPath( getenv( "QGIS_PREFIX_PATH" ) ? getenv( "QGIS_PREFIX_PATH" ) : applicationDirPath() );
@@ -199,9 +189,9 @@ void QgsApplication::init( QString customConfigPath )
     }
   }
 
-  if ( !customConfigPath.isEmpty() )
+  if ( !configPath.isEmpty() )
   {
-    ABISYM( mConfigPath ) = customConfigPath + '/'; // make sure trailing slash is included
+    ABISYM( mConfigPath ) = configPath + '/'; // make sure trailing slash is included
   }
 
   ABISYM( mDefaultSvgPaths ) << qgisSettingsDirPath() + QStringLiteral( "svg/" );
@@ -1281,6 +1271,7 @@ void QgsApplication::setCustomVariable( const QString &name, const QVariant &val
   emit instance()->customVariablesChanged();
 }
 
+
 QString QgsApplication::nullRepresentation()
 {
   ApplicationMembers *appMembers = members();
@@ -1467,6 +1458,11 @@ QgsTaskManager *QgsApplication::taskManager()
   return members()->mTaskManager;
 }
 
+QgsUserProfileManager *QgsApplication::userProfileManager()
+{
+  return members()->mUserConfigManager;
+}
+
 QgsColorSchemeRegistry *QgsApplication::colorSchemeRegistry()
 {
   return members()->mColorSchemeRegistry;
@@ -1552,6 +1548,7 @@ QgsApplication::ApplicationMembers::ApplicationMembers()
   mPluginLayerRegistry = new QgsPluginLayerRegistry();
   mProcessingRegistry = new QgsProcessingRegistry();
   mAnnotationRegistry = new QgsAnnotationRegistry();
+  mUserConfigManager = new QgsUserProfileManager() ;
 }
 
 QgsApplication::ApplicationMembers::~ApplicationMembers()
@@ -1571,6 +1568,7 @@ QgsApplication::ApplicationMembers::~ApplicationMembers()
   delete mSvgCache;
   delete mSymbolLayerRegistry;
   delete mTaskManager;
+  delete mUserConfigManager;
 }
 
 QgsApplication::ApplicationMembers *QgsApplication::members()

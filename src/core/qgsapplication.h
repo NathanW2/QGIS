@@ -39,6 +39,8 @@ class QgsPluginLayerRegistry;
 class QgsMessageLog;
 class QgsProcessingRegistry;
 class QgsAnnotationRegistry;
+class QgsUserProflie;
+class QgsUserProfileManager;
 
 /** \ingroup core
  * Extends QApplication to provide access to QGIS specific resources such
@@ -79,7 +81,7 @@ class CORE_EXPORT QgsApplication : public QApplication
         the above case.
         \note not available in Python bindings
       */
-    static void init( QString customConfigPath = QString() );
+    static void init( QString configPath = QString() );
 
     //! Watch for QFileOpenEvent.
     virtual bool event( QEvent *event ) override;
@@ -400,6 +402,12 @@ class CORE_EXPORT QgsApplication : public QApplication
     static QgsTaskManager *taskManager();
 
     /**
+     * Returns the application's user config folder manager.
+     * @note added in QGIS 3.0
+     */
+    static QgsUserProfileManager *userProfileManager();
+
+    /**
      * Returns the application's color scheme registry, used for managing color schemes.
      * \since QGIS 3.0
      */
@@ -535,6 +543,7 @@ class CORE_EXPORT QgsApplication : public QApplication
      */
     static void setCustomVariable( const QString &name, const QVariant &value );
 
+
   signals:
     //! \note not available in Python bindings
     void preNotify( QObject *receiver, QEvent *event, bool *done );
@@ -617,6 +626,7 @@ class CORE_EXPORT QgsApplication : public QApplication
       QgsSvgCache *mSvgCache = nullptr;
       QgsSymbolLayerRegistry *mSymbolLayerRegistry = nullptr;
       QgsTaskManager *mTaskManager = nullptr;
+      QgsUserProfileManager *mUserConfigManager = nullptr;
       QString mNullRepresentation;
 
       ApplicationMembers();

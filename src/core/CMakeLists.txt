@@ -239,6 +239,8 @@ SET(QGIS_CORE_SRCS
   qgstransaction.cpp
   qgstransactiongroup.cpp
   qgsunittypes.cpp
+  qgsuserprofile.cpp
+  qgsuserprofilemanager.cpp
   qgsvector.cpp
   qgsvectordataprovider.cpp
   qgsvectorfilewriter.cpp
@@ -539,6 +541,7 @@ SET(QGIS_CORE_MOC_HDRS
   qgstransaction.h
   qgstransactiongroup.h
   qgsunittypes.h
+  qgsuserprofilemanager.h
   qgsvectordataprovider.h
   qgsvectorfilewritertask.h
   qgsvectorlayercache.h

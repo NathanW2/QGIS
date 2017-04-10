@@ -271,6 +271,11 @@
 #include "qgsvectorfilewritertask.h"
 #include "qgsnewnamedialog.h"
 
+#include "qgsuserprofilemanager.h"
+#include "qgsuserprofile.h"
+#include "qgsuserprofilemanagerwidget.h"
+#include "qgsuserprofilemanagerwidgetfactory.h"
+
 #include "qgssublayersdialog.h"
 #include "ogr/qgsopenvectorlayerdialog.h"
 #include "ogr/qgsvectorlayersaveasdialog.h"
@@ -803,6 +808,10 @@ QgisApp::QgisApp( QSplashScreen *splash, bool restorePlugins, bool skipVersionCh
   functionProfile( &QgisApp::updateProjectFromTemplates, this, QStringLiteral( "Update project from templates" ) );
   functionProfile( &QgisApp::legendLayerSelectionChanged, this, QStringLiteral( "Legend layer selection changed" ) );
 
+  connect( QgsApplication::userProfileManager(), &QgsUserProfileManager::profilesChanged, this, &QgisApp::refreshProfileMenu );
+
+  registerOptionsWidgetFactory( new QgsUserProfileManagerWidgetFactory( QgsApplication::userProfileManager() ) );
+
   QgsApplication::annotationRegistry()->addAnnotationType( QgsAnnotationMetadata( QStringLiteral( "FormAnnotationItem" ), &QgsFormAnnotation::create ) );
   connect( QgsProject::instance()->annotationManager(), &QgsAnnotationManager::annotationAdded, this, &QgisApp::annotationCreated );
 
@@ -1230,6 +1239,8 @@ QgisApp::QgisApp()
   , mPopupMenu( nullptr )
   , mDatabaseMenu( nullptr )
   , mWebMenu( nullptr )
+  , mConfigMenu( nullptr )
+  , mConfigMenuBar( nullptr )
   , mToolPopupOverviews( nullptr )
   , mToolPopupDisplay( nullptr )
   , mMapCanvas( nullptr )
@@ -2161,12 +2172,55 @@ void QgisApp::createMenus()
   mWebMenu = new QMenu( tr( "&Web" ), menuBar() );
   mWebMenu->setObjectName( QStringLiteral( "mWebMenu" ) );
 
+
   // Help menu
   // add What's this button to it
   QAction *before = mActionHelpAPI;
   QAction *actionWhatsThis = QWhatsThis::createAction( this );
   actionWhatsThis->setIcon( QgsApplication::getThemeIcon( QStringLiteral( "/mActionWhatsThis.svg" ) ) );
   mHelpMenu->insertAction( before, actionWhatsThis );
+
+  this->createProfileMenu();
+}
+
+void QgisApp::refreshProfileMenu()
+{
+  mConfigMenu->clear();
+  QgsUserProflie *profile = QgsApplication::userProfileManager()->userProfile();
+  mConfigMenu->setTitle( tr( "&User Profile: %1" ).arg( profile->alias() ) );
+
+  Q_FOREACH ( const QString &name, QgsApplication::userProfileManager()->allProfiles() )
+  {
+    profile = QgsApplication::userProfileManager()->profileForName( name );
+    QAction *action = mConfigMenu->addAction( profile->icon(), profile->alias() );
+    connect( action, &QAction::triggered, this, [this, profile]()
+    {
+      QgsApplication::userProfileManager()->loadUserProfile( profile );
+    } );
+  }
+
+  mConfigMenu->addSeparator();
+  QAction *manageConfigAction = mConfigMenu->addAction( tr( "Manage" ) );
+  connect( manageConfigAction, &QAction::triggered, this, &QgisApp::manageProfiles );
+}
+
+void QgisApp::manageProfiles()
+{
+  showOptionsDialog( this, "ProfileManager" );
+}
+
+void QgisApp::createProfileMenu()
+{
+  mConfigMenu = new QMenu();
+  mConfigMenu->addSeparator();
+  mConfigMenu->addAction( tr( "Manage Configs" ) );
+
+  mConfigMenuBar = new QMenuBar( menuBar() );
+  mConfigMenuBar->addMenu( mConfigMenu );
+  menuBar()->setCornerWidget( mConfigMenuBar );
+  mConfigMenuBar->show();
+
+  this->refreshProfileMenu();
 }
 
 void QgisApp::createToolBars()
@@ -4717,6 +4771,7 @@ void QgisApp::fileExit()
   if ( saveDirty() )
   {
     closeProject();
+    QgsApplication::userProfileManager()->setDefaultFromActive();
     qApp->exit( 0 );
   }
 }

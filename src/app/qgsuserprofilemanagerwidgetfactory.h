@@ -1,5 +1,5 @@
 /***************************************************************************
-  qgsuserprofilemanagerwidgetfactory.h - QgsUserProfileManagerWidgetFactory
+  qgsuserprofilemanagerwidgetfactor	y.h - QgsUserProfileManagerWidgetFactory
 
  ---------------------
  begin                : 17.3.2017

@@ -93,6 +93,8 @@ class QgsVectorLayerTools;
 class QgsWelcomePage;
 class QgsOptionsWidgetFactory;
 
+class QgsUserProfileManagerWidgetFactory;
+
 class QDomDocument;
 class QNetworkReply;
 class QNetworkProxy;
@@ -1617,6 +1619,7 @@ class APP_EXPORT QgisApp : public QMainWindow, private Ui::MainWindow
     void createActions();
     void createActionGroups();
     void createMenus();
+    void createProfileMenu();
     void createToolBars();
     void createStatusBar();
     void setupConnections();
@@ -1626,6 +1629,12 @@ class APP_EXPORT QgisApp : public QMainWindow, private Ui::MainWindow
     void createMapTips();
     void createDecorations();
 
+    /**
+     * Refresh the user profile menu.
+     */
+    void refreshProfileMenu();
+
+    void manageProfiles();
     //! Do histogram stretch for singleband gray / multiband color rasters
     void histogramStretch( bool visibleAreaOnly = false, QgsRasterMinMaxOrigin::Limits limits = QgsRasterMinMaxOrigin::MinMax );
 
@@ -1824,6 +1833,10 @@ class APP_EXPORT QgisApp : public QMainWindow, private Ui::MainWindow
     QMenu *mDatabaseMenu = nullptr;
     //! Top level web menu
     QMenu *mWebMenu = nullptr;
+
+    QMenu *mConfigMenu = nullptr;
+    QMenuBar *mConfigMenuBar = nullptr;
+
     //! Popup menu for the map overview tools
     QMenu *mToolPopupOverviews = nullptr;
     //! Popup menu for the display tools

@@ -178,6 +178,7 @@ SET(QGIS_APP_SRCS
 
   qgssettingstree.cpp
   qgsvariantdelegate.cpp
+  qgsuserprofilemanagerwidgetfactory.cpp
 )
 
 SET (QGIS_APP_MOC_HDRS

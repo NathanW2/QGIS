@@ -282,7 +282,6 @@ SET(QGIS_CORE_SRCS
   composer/qgsatlascomposition.cpp
   composer/qgscomposerarrow.cpp
   composer/qgscomposerattributetablemodelv2.cpp
-  composer/qgscomposerattributetablev2.cpp
   composer/qgscomposereffect.cpp
   composer/qgscomposerframe.cpp
   composer/qgscomposerhtml.cpp
@@ -483,8 +482,8 @@ IF (QT_MOBILITY_LOCATION_FOUND OR Qt5Positioning_FOUND)
   )
 ENDIF (QT_MOBILITY_LOCATION_FOUND OR Qt5Positioning_FOUND)
 
-ADD_FLEX_FILES(QGIS_CORE_SRCS qgsexpressionlexer.ll qgssqlstatementlexer.ll)
-ADD_BISON_FILES(QGIS_CORE_SRCS qgsexpressionparser.yy qgssqlstatementparser.yy)
+ADD_FLEX_FILES(QGIS_CORE_SRCS2 qgsexpressionlexer.ll qgssqlstatementlexer.ll)
+ADD_BISON_FILES(QGIS_CORE_SRCS2 qgsexpressionparser.yy qgssqlstatementparser.yy)
 
 IF(NOT MSVC)
   SET_SOURCE_FILES_PROPERTIES(qgsexpressionparser.cpp qgssqlstatementparser.cpp PROPERTIES COMPILE_FLAGS -w)
@@ -1018,7 +1017,11 @@ ADD_DEFINITIONS(-DTEST_DATA_DIR="\\"${TEST_DATA_DIR}\\"")
 #############################################################
 # qgis_core library
 
-ADD_LIBRARY(qgis_core SHARED ${QGIS_CORE_SRCS} ${QGIS_CORE_MOC_SRCS} ${QGIS_CORE_HDRS} ${QGIS_CORE_MOC_HDRS})
+SET(SRCS ${QGIS_CORE_SRCS} ${QGIS_CORE_MOC_SRCS} )
+ENABLE_UNITY_BUILD(qgis_core SRCS 10 cpp)
+ADD_LIBRARY(qgis_core SHARED ${QGIS_CORE_SRCS2} ${SRCS} ${QGIS_CORE_HDRS} ${QGIS_CORE_MOC_HDRS}
+  composer/qgscomposerattributetablev2.cpp
+  )
 
 GENERATE_EXPORT_HEADER(
   qgis_core

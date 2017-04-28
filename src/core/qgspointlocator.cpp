@@ -61,7 +61,7 @@ static const double POINT_LOC_EPSILON = 1e-12;
 class QgsPointLocator_Stream : public IDataStream
 {
   public:
-    explicit QgsPointLocator_Stream( const QLinkedList<RTree::Data *> &dataList )
+    explicit QgsPointLocator_Stream( const QLinkedList<SpatialIndex::RTree::Data *> &dataList )
       : mDataList( dataList )
       , mIt( mDataList )
     { }
@@ -73,8 +73,8 @@ class QgsPointLocator_Stream : public IDataStream
     void rewind() override { Q_ASSERT( false && "not available" ); }
 
   private:
-    QLinkedList<RTree::Data *> mDataList;
-    QLinkedListIterator<RTree::Data *> mIt;
+    QLinkedList<SpatialIndex::RTree::Data *> mDataList;
+    QLinkedListIterator<SpatialIndex::RTree::Data *> mIt;
 };
 
 
@@ -676,7 +676,7 @@ bool QgsPointLocator::rebuildIndex( int maxFeaturesToIndex )
 {
   destroyIndex();
 
-  QLinkedList<RTree::Data *> dataList;
+  QLinkedList<SpatialIndex::RTree::Data *> dataList;
   QgsFeature f;
   QgsWkbTypes::GeometryType geomType = mLayer->geometryType();
   if ( geomType == QgsWkbTypes::NullGeometry )
@@ -727,7 +727,7 @@ bool QgsPointLocator::rebuildIndex( int maxFeaturesToIndex )
     }
 
     SpatialIndex::Region r( rect2region( f.geometry().boundingBox() ) );
-    dataList << new RTree::Data( 0, nullptr, r, f.id() );
+    dataList << new SpatialIndex::RTree::Data( 0, nullptr, r, f.id() );
 
     if ( mGeoms.contains( f.id() ) )
       delete mGeoms.take( f.id() );
@@ -747,7 +747,7 @@ bool QgsPointLocator::rebuildIndex( int maxFeaturesToIndex )
   unsigned long indexCapacity = 10;
   unsigned long leafCapacity = 10;
   unsigned long dimension = 2;
-  RTree::RTreeVariant variant = RTree::RV_RSTAR;
+  SpatialIndex::RTree::RTreeVariant variant = SpatialIndex::RTree::RV_RSTAR;
   SpatialIndex::id_type indexId;
 
   if ( dataList.isEmpty() )
@@ -757,7 +757,7 @@ bool QgsPointLocator::rebuildIndex( int maxFeaturesToIndex )
   }
 
   QgsPointLocator_Stream stream( dataList );
-  mRTree = RTree::createAndBulkLoadNewRTree( RTree::BLM_STR, stream, *mStorage, fillFactor, indexCapacity,
+  mRTree = SpatialIndex::RTree::createAndBulkLoadNewRTree( SpatialIndex::RTree::BLM_STR, stream, *mStorage, fillFactor, indexCapacity,
            leafCapacity, dimension, variant, indexId );
   return true;
 }

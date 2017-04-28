@@ -70,7 +70,7 @@ QgsAuthTrustedCAsDialog::QgsAuthTrustedCAsDialog( QWidget *parent,
   }
 }
 
-static void setItemBold_( QTreeWidgetItem *item )
+static void setItemBold_trust( QTreeWidgetItem *item )
 {
   item->setFirstColumnSpanned( true );
   QFont secf( item->font( 0 ) );
@@ -93,13 +93,13 @@ void QgsAuthTrustedCAsDialog::setupCaCertsTree()
     treeTrustedCAs,
     QStringList( tr( "Authorities/Issuers" ) ),
     ( int )QgsAuthTrustedCAsDialog::Section );
-  setItemBold_( mRootCaSecItem );
+  setItemBold_trust( mRootCaSecItem );
   mRootCaSecItem->setFlags( Qt::ItemIsEnabled );
   mRootCaSecItem->setExpanded( true );
   treeTrustedCAs->insertTopLevelItem( 0, mRootCaSecItem );
 }
 
-static void removeChildren_( QTreeWidgetItem *item )
+static void removeChildren_trust( QTreeWidgetItem *item )
 {
   Q_FOREACH ( QTreeWidgetItem *child, item->takeChildren() )
   {
@@ -109,7 +109,7 @@ static void removeChildren_( QTreeWidgetItem *item )
 
 void QgsAuthTrustedCAsDialog::populateCaCertsView()
 {
-  removeChildren_( mRootCaSecItem );
+  removeChildren_trust( mRootCaSecItem );
 
   if ( mTrustedCAs.isEmpty() )
   {

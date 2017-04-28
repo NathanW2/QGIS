@@ -609,7 +609,9 @@ ENDIF (ANDROID)
 
 # Putting IMAGE_RCC_SRCS into qgis_app lib is causing problems when the lib is
 # loaded (by plugin for example) in test unit (qgis_composerpicturetest).
-ADD_LIBRARY(qgis_app SHARED ${QGIS_APP_SRCS} ${QGIS_APP_MOC_SRCS} ${QGIS_APP_HDRS} ${QGIS_APP_MOC_HDRS})
+SET(SRCS ${QGIS_CORE_SRCS} ${QGIS_APP_MOC_SRCS})
+ENABLE_UNITY_BUILD(qgis_app SRCS 10 cpp)
+ADD_LIBRARY(qgis_app SHARED ${SRCS} ${QGIS_APP_HDRS} ${QGIS_APP_MOC_HDRS})
 
 TARGET_LINK_LIBRARIES(qgis_app
   ${QWT_LIBRARY}

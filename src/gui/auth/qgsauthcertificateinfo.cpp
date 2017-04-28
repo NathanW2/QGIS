@@ -32,7 +32,7 @@
 #include "qgslogger.h"
 
 
-static void setItemBold_( QTreeWidgetItem *item )
+static void setItemBold_cert( QTreeWidgetItem *item )
 {
   item->setFirstColumnSpanned( true );
   QFont secf( item->font( 0 ) );
@@ -40,7 +40,7 @@ static void setItemBold_( QTreeWidgetItem *item )
   item->setFont( 0, secf );
 }
 
-static void removeChildren_( QTreeWidgetItem *item )
+static void removeChildren_cert( QTreeWidgetItem *item )
 {
   Q_FOREACH ( QTreeWidgetItem *child, item->takeChildren() )
   {
@@ -330,7 +330,7 @@ void QgsAuthCertInfo::setUpCertDetailsTree()
     treeDetails,
     QStringList( tr( "General" ) ),
     ( int )DetailsSection );
-  setItemBold_( mSecGeneral );
+  setItemBold_cert( mSecGeneral );
   mSecGeneral->setFirstColumnSpanned( true );
   mSecGeneral->setFlags( Qt::ItemIsEnabled );
   mSecGeneral->setExpanded( true );
@@ -340,7 +340,7 @@ void QgsAuthCertInfo::setUpCertDetailsTree()
     treeDetails,
     QStringList( tr( "Details" ) ),
     ( int )DetailsSection );
-  setItemBold_( mSecDetails );
+  setItemBold_cert( mSecDetails );
   mSecDetails->setFirstColumnSpanned( true );
   mSecDetails->setFlags( Qt::ItemIsEnabled );
   mSecDetails->setExpanded( false );
@@ -357,7 +357,7 @@ void QgsAuthCertInfo::setUpCertDetailsTree()
     treeDetails,
     QStringList( tr( "PEM Text" ) ),
     ( int )DetailsSection );
-  setItemBold_( mSecPemText );
+  setItemBold_cert( mSecPemText );
   mSecPemText->setFirstColumnSpanned( true );
   mSecPemText->setFlags( Qt::ItemIsEnabled );
   mSecPemText->setExpanded( false );
@@ -452,7 +452,7 @@ void QgsAuthCertInfo::addFieldItem( QTreeWidgetItem *parent, const QString &fiel
 
 void QgsAuthCertInfo::populateInfoGeneralSection()
 {
-  removeChildren_( mSecGeneral );
+  removeChildren_cert( mSecGeneral );
 
   if ( mCurrentQCert.isNull() )
   {
@@ -526,11 +526,11 @@ void QgsAuthCertInfo::populateInfoGeneralSection()
 
 void QgsAuthCertInfo::populateInfoDetailsSection()
 {
-  removeChildren_( mGrpSubj );
-  removeChildren_( mGrpIssu );
-  removeChildren_( mGrpCert );
-  removeChildren_( mGrpPkey );
-  removeChildren_( mGrpExts );
+  removeChildren_cert( mGrpSubj );
+  removeChildren_cert( mGrpIssu );
+  removeChildren_cert( mGrpCert );
+  removeChildren_cert( mGrpPkey );
+  removeChildren_cert( mGrpExts );
 
   if ( mCurrentQCert.isNull() )
     return;
@@ -819,7 +819,7 @@ void QgsAuthCertInfo::populateInfoDetailsSection()
 
 void QgsAuthCertInfo::populateInfoPemTextSection()
 {
-  removeChildren_( mSecPemText );
+  removeChildren_cert( mSecPemText );
 
   if ( mCurrentQCert.isNull() )
     return;

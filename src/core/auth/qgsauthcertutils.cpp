@@ -94,7 +94,7 @@ QMap<QString, QList<QgsAuthConfigSslServer> > QgsAuthCertUtils::sslConfigsGroupe
   return orgconfigs;
 }
 
-static QByteArray fileData_( const QString &path, bool astext = false )
+static QByteArray fileData_auth( const QString &path, bool astext = false )
 {
   QByteArray data;
   QFile file( path );
@@ -117,7 +117,7 @@ QList<QSslCertificate> QgsAuthCertUtils::certsFromFile( const QString &certspath
 {
   QList<QSslCertificate> certs;
   bool pem = certspath.endsWith( QLatin1String( ".pem" ), Qt::CaseInsensitive );
-  certs = QSslCertificate::fromData( fileData_( certspath, pem ), pem ? QSsl::Pem : QSsl::Der );
+  certs = QSslCertificate::fromData( fileData_auth( certspath, pem ), pem ? QSsl::Pem : QSsl::Der );
   if ( certs.isEmpty() )
   {
     QgsDebugMsg( QString( "Parsed cert(s) EMPTY for path: %1" ).arg( certspath ) );
@@ -145,7 +145,7 @@ QSslKey QgsAuthCertUtils::keyFromFile( const QString &keypath,
                                        QString *algtype )
 {
   bool pem = keypath.endsWith( QLatin1String( ".pem" ), Qt::CaseInsensitive );
-  QByteArray keydata( fileData_( keypath, pem ) );
+  QByteArray keydata( fileData_auth( keypath, pem ) );
 
   QSslKey clientkey;
   clientkey = QSslKey( keydata,

@@ -27,7 +27,7 @@
 #include "qgslogger.h"
 
 
-static void setItemBold_( QTreeWidgetItem *item )
+static void setItemBold_config( QTreeWidgetItem *item )
 {
   item->setFirstColumnSpanned( true );
   QFont secf( item->font( 0 ) );
@@ -112,7 +112,7 @@ QTreeWidgetItem *QgsAuthSslConfigWidget::addRootItem( const QString &label )
   QTreeWidgetItem *item = new QTreeWidgetItem(
     QStringList() << label,
     ( int )ConfigParent );
-  setItemBold_( item );
+  setItemBold_config( item );
   item->setTextAlignment( 0, Qt::AlignVCenter );
   item->setFlags( item->flags() & ~Qt::ItemIsSelectable );
   treeSslConfig->insertTopLevelItem( treeSslConfig->topLevelItemCount(), item );

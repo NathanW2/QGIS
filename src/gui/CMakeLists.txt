@@ -783,8 +783,12 @@ ENDIF(MSVC)
 #############################################################
 # qgis_gui library
 
+SET(SRCS ${QGIS_GUI_SRCS} )
+ENABLE_UNITY_BUILD(qgis_gui SRCS 10 cpp)
 ADD_LIBRARY(qgis_gui SHARED
-     ${QGIS_GUI_SRCS} ${QGIS_GUI_MOC_SRCS} ${QGIS_GUI_HDRS} ${QGIS_GUI_MOC_HDRS}
+     ${SRCS}
+     ${QGIS_GUI_MOC_SRCS}
+#     ${SRCS} ${QGIS_GUI_HDRS} ${QGIS_GUI_MOC_HDRS}
 )
 
 GENERATE_EXPORT_HEADER(

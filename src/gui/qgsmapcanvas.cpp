@@ -175,6 +175,7 @@ QgsMapCanvas::QgsMapCanvas( QWidget *parent )
   connect( &mAutoRefreshTimer, &QTimer::timeout, this, &QgsMapCanvas::autoRefreshTriggered );
 
   connect( this, &QgsMapCanvas::extentsChanged, this, &QgsMapCanvas::updateCanvasItemPositions );
+  connect( this, &QgsMapCanvas::selectionChanged, this, &QgsMapCanvas::refresh );
 
   setInteractive( false );
 
@@ -315,7 +316,7 @@ void QgsMapCanvas::setLayersPrivate( const QList<QgsMapLayer *> &layers )
     disconnect( layer, &QgsMapLayer::autoRefreshIntervalChanged, this, &QgsMapCanvas::updateAutoRefreshTimer );
     if ( QgsVectorLayer *vlayer = qobject_cast<QgsVectorLayer *>( layer ) )
     {
-      disconnect( vlayer, &QgsVectorLayer::selectionChanged, this, &QgsMapCanvas::selectionChangedSlot );
+      disconnect( vlayer, &QgsVectorLayer::selectionChanged, this, &QgsMapCanvas::selectionChanged );
     }
   }
 
@@ -330,7 +331,7 @@ void QgsMapCanvas::setLayersPrivate( const QList<QgsMapLayer *> &layers )
     connect( layer, &QgsMapLayer::autoRefreshIntervalChanged, this, &QgsMapCanvas::updateAutoRefreshTimer );
     if ( QgsVectorLayer *vlayer = qobject_cast<QgsVectorLayer *>( layer ) )
     {
-      connect( vlayer, &QgsVectorLayer::selectionChanged, this, &QgsMapCanvas::selectionChangedSlot );
+      connect( vlayer, &QgsVectorLayer::selectionChanged, this, &QgsMapCanvas::selectionChanged );
     }
   }
   updateDatumTransformEntries();
@@ -2126,14 +2127,6 @@ void QgsMapCanvas::zoomByFactor( double scaleFactor, const QgsPointXY *center )
     setExtent( r, true );
     refresh();
   }
-}
-
-void QgsMapCanvas::selectionChangedSlot()
-{
-  // Find out which layer it was that sent the signal.
-  QgsMapLayer *layer = qobject_cast<QgsMapLayer *>( sender() );
-  emit selectionChanged( layer );
-  refresh();
 }
 
 void QgsMapCanvas::dragEnterEvent( QDragEnterEvent *e )

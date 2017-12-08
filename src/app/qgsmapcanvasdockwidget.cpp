@@ -28,10 +28,13 @@
 #include "qgisapp.h"
 #include "qgsvertexmarker.h"
 #include "qgsrubberband.h"
+#include "qgsvectorlayer.h"
+
 #include <QMessageBox>
 #include <QMenu>
 #include <QToolBar>
 #include <QToolButton>
+
 
 QgsMapCanvasDockWidget::QgsMapCanvasDockWidget( const QString &name, QWidget *parent )
   : QgsDockWidget( parent )
@@ -86,6 +89,8 @@ QgsMapCanvasDockWidget::QgsMapCanvasDockWidget( const QString &name, QWidget *pa
   settingsButton->setPopupMode( QToolButton::InstantPopup );
   settingsButton->setIcon( QgsApplication::getThemeIcon( QStringLiteral( "/mActionMapSettings.svg" ) ) );
   mToolbar->addWidget( settingsButton );
+
+  connect( mMapCanvas, &QgsMapCanvas::selectionChanged, mMapCanvas, &QgsMapCanvas::zoomToSelected );
 
   connect( mActionSetCrs, &QAction::triggered, this, &QgsMapCanvasDockWidget::setMapCrs );
   connect( mMapCanvas, &QgsMapCanvas::destinationCrsChanged, this, &QgsMapCanvasDockWidget::mapCrsChanged );

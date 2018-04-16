@@ -43,9 +43,12 @@
 #include "qgsmessageoutput.h"
 #include "qgsrectangle.h"
 #include "qgis.h"
+#include "qgsprojectstorageregistry.h"
 
 #include "qgsmssqldataitems.h"
 #include "qgsmssqlfeatureiterator.h"
+#include "qgsmssqlprojectstorage.h"
+
 
 #ifdef HAVE_GUI
 #include "qgsmssqlsourceselect.h"
@@ -2348,3 +2351,21 @@ QGISEXTERN QList<QgsSourceSelectProvider *> *sourceSelectProviders()
 }
 
 #endif
+
+QgsMssqlProjectStorage *gProjectStorage = nullptr;   // when not null it is owned by QgsApplication::projectStorageRegistry()
+
+QGISEXTERN void initProvider()
+{
+  Q_ASSERT( !gProjectStorage );
+  gProjectStorage = new QgsMssqlProjectStorage;
+  QgsApplication::projectStorageRegistry()->registerProjectStorage( gProjectStorage );  // takes ownership
+}
+
+QGISEXTERN void cleanupProvider()
+{
+  QgsApplication::projectStorageRegistry()->unregisterProjectStorage( gProjectStorage );  // destroys the object
+  gProjectStorage = nullptr;
+
+//  QgsPostgresConnPool::cleanupInstance();
+}
+

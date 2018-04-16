@@ -6,6 +6,7 @@ SET(MSSQL_SRCS
   qgsmssqlexpressioncompiler.cpp
   qgsmssqlfeatureiterator.cpp
   qgsmssqlgeomcolumntypethread.cpp
+  qgsmssqlprojectstorage.cpp
 )
 
 SET(MSSQL_MOC_HDRS

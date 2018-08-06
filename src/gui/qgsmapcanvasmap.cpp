@@ -58,12 +58,36 @@ QRectF QgsMapCanvasMap::boundingRect() const
   return QRectF( -width, -height, 3 * width, 3 * height );
 }
 
+void QgsMapCanvasMap::setWidthOveride( int x, int width )
+{
+  mClipWidth = width;
+  mClipx = x;
+  mClipped = true;
+  mItemSize.setWidth( width );
+  update();
+}
+
+qreal QgsMapCanvasMap::width()
+{
+ return mItemSize.width();
+}
+
 void QgsMapCanvasMap::paint( QPainter *painter )
 {
   int w = std::round( mItemSize.width() ) - 2, h = std::round( mItemSize.height() ) - 2; // setRect() makes the size +2 :-(
-  if ( mImage.size() != QSize( w, h ) )
+  QImage image;
+  if (mClipped)
   {
-    QgsDebugMsg( QString( "map paint DIFFERENT SIZE: img %1,%2  item %3,%4" ).arg( mImage.width() ).arg( mImage.height() ).arg( w ).arg( h ) );
+    QgsDebugMsg("Clipped!");
+    image = mImage.copy(mClipx, 0, w, mImage.height());
+  }
+  else
+  {
+    image = mImage;
+  }
+  if ( image.size() != QSize( w, h ) )
+  {
+    QgsDebugMsg( QString( "map paint DIFFERENT SIZE: img %1,%2  item %3,%4" ).arg( image.width() ).arg( image.height() ).arg( w ).arg( h ) );
     // This happens on zoom events when ::paint is called before
     // the renderer has completed
   }
@@ -83,10 +107,9 @@ void QgsMapCanvasMap::paint( QPainter *painter )
     painter->drawImage( QRectF( ul.x(), ul.y(), lr.x() - ul.x(), lr.y() - ul.y() ), imIt->first, QRect( 0, 0, imIt->first.width(), imIt->first.height() ) );
   }
 
-  painter->drawImage( QRect( 0, 0, w, h ), mImage );
+  painter->drawImage( QRect( 0, 0, w, h ), image );
 
   // For debugging:
-#if 0
   QRectF br = boundingRect();
   QPointF c = br.center();
   double rad = std::max( br.width(), br.height() ) / 10;
@@ -103,7 +126,6 @@ void QgsMapCanvasMap::paint( QPainter *painter )
   nh = br.height() * 0.5;
   br = QRectF( c - QPointF( nw / 2, nh / 2 ), QSize( nw, nh ) );
   painter->drawRoundedRect( br, rad, rad );
-#endif
 }
 
 /// @endcond

@@ -772,9 +772,6 @@ QgisApp::QgisApp( QSplashScreen *splash, bool restorePlugins, bool skipVersionCh
   mMapCanvas->setCanvasColor( QColor( myRed, myGreen, myBlue ) );
   endProfile();
 
-  mSwipeMap = new QgsMapSwipeCanvasMap( mMapCanvas );
-
-
   connect( QgsProject::instance(), &QgsProject::isDirtyChanged, this, [ = ] { setTitleBarText_( *this ); } );
 
   // what type of project to auto-open

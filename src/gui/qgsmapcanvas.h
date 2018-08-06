@@ -914,9 +914,11 @@ class GUI_EXPORT QgsMapCanvas : public QGraphicsView
 
     //! encompases all map settings necessary for map rendering
     QgsMapSettings mSettings;
+    QgsMapSettings mSettingsCompare;
 
     //! owns pixmap with rendered map and controls rendering
     QgsMapCanvasMap *mMap = nullptr;
+    QgsMapCanvasMap *mMapCompare = nullptr;
 
     //! Flag indicating if the map canvas is frozen.
     bool mFrozen = false;
@@ -951,6 +953,7 @@ class GUI_EXPORT QgsMapCanvas : public QGraphicsView
 
     //! Job that takes care of map rendering in background
     QgsMapRendererQImageJob *mJob = nullptr;
+    QgsMapRendererQImageJob *mJobCompare = nullptr;
 
     //! Flag determining whether the active job has been canceled
     bool mJobCanceled = false;
@@ -972,7 +975,7 @@ class GUI_EXPORT QgsMapCanvas : public QGraphicsView
 
     QgsPreviewEffect *mPreviewEffect = nullptr;
 
-    QgsRectangle imageRect( const QImage &img, const QgsMapSettings &mapSettings );
+    QgsRectangle imageRect(const QImage &img, const QgsMapSettings &mapSettings, const bool setWidth = false, const int width = 0);
 
     QgsSnappingUtils *mSnappingUtils = nullptr;
 

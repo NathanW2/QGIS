@@ -20,10 +20,11 @@
 
 
 class QgsMapCanvas;
+class QgsMapRendererParallelJob;
 
 // TODO
 //  - Add mode
-//  - Add slider tool
+//  - Add slider widget
 // -  Add fade in/out
 class QgsMapSwipeCanvasMap : public QgsMapCanvasMap
 {
@@ -31,7 +32,11 @@ class QgsMapSwipeCanvasMap : public QgsMapCanvasMap
   public:
     QgsMapSwipeCanvasMap( QgsMapCanvas *canvas );
 
-    virtual void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+    virtual void paint( QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget ) override;
+
+  public slots:
+    void updateMap();
+
 };
 
 #endif // QGSMAPSWIPECANVASMAP_H

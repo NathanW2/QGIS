@@ -50,8 +50,13 @@ class GUI_EXPORT QgsMapCanvasMap : public QgsMapCanvasItem
 
     QRectF boundingRect() const override;
 
-  private:
+    void setWidthOveride(int x, int width );
+    qreal width();
 
+  private:
+    int mClipx = 0;
+    int mClipWidth = 0;
+    bool mClipped = false;
     QImage mImage;
 
     //! Preview images for panning. Usually cover area around the rendered image

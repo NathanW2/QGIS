@@ -121,6 +121,9 @@ QgsMapCanvas::QgsMapCanvas( QWidget *parent )
   // create map canvas item which will show the map
   mMap = new QgsMapCanvasMap( this );
 
+  mMapCompare = new QgsMapCanvasMap( this );
+  mMapCompare->setZValue( mMap->zValue() + 1 );
+
   // project handling
   connect( QgsProject::instance(), &QgsProject::readProject,
            this, &QgsMapCanvas::readProject );
@@ -534,17 +537,33 @@ void QgsMapCanvas::refreshMap()
     mSettings.setLayerStyleOverrides( QgsProject::instance()->mapThemeCollection()->mapThemeStyleOverrides( mTheme ) );
   }
 
+  mSettingsCompare = QgsMapSettings( mSettings );
+  QString compareTheme = "test";
+  mSettingsCompare.setLayerStyleOverrides( QgsProject::instance()->mapThemeCollection()->mapThemeStyleOverrides( compareTheme ) );
+  mSettingsCompare.setLayers( QgsProject::instance()->mapThemeCollection()->mapThemeVisibleLayers( compareTheme ) );
+
   // create the renderer job
   Q_ASSERT( !mJob );
+  Q_ASSERT( !mJobCompare );
   mJobCanceled = false;
   if ( mUseParallelRendering )
+  {
     mJob = new QgsMapRendererParallelJob( mSettings );
+    mJobCompare = new QgsMapRendererParallelJob( mSettingsCompare );
+  }
   else
+  {
     mJob = new QgsMapRendererSequentialJob( mSettings );
+    mJobCompare = new QgsMapRendererSequentialJob( mSettingsCompare );
+  }
   connect( mJob, &QgsMapRendererJob::finished, this, &QgsMapCanvas::rendererJobFinished );
+
+  // TODO Connect only if needed when enabled. Going to the same slot might not be a good idea here.
+  connect( mJobCompare, &QgsMapRendererJob::finished, this, &QgsMapCanvas::rendererJobFinished );
   mJob->setCache( mCache );
 
   mJob->start();
+  mJobCompare->start();
 
   // from now on we can accept refresh requests again
   // this must be reset only after the job has been started, because
@@ -582,12 +601,22 @@ void QgsMapCanvas::mapThemeChanged( const QString &theme )
 
 void QgsMapCanvas::rendererJobFinished()
 {
+  // Return and wait for the all the jobs are done first.
+  // TODO: Do this better.
+  if ( mJobCompare->isActive() || mJob->isActive() )
+    return;
+
   QgsDebugMsg( QString( "CANVAS finish! %1" ).arg( !mJobCanceled ) );
 
   mMapUpdateTimer.stop();
 
   // TODO: would be better to show the errors in message bar
   Q_FOREACH ( const QgsMapRendererJob::Error &error, mJob->errors() )
+  {
+    QgsMessageLog::logMessage( error.layerID + " :: " + error.message, tr( "Rendering" ) );
+  }
+
+  Q_FOREACH ( const QgsMapRendererJob::Error &error, mJobCompare->errors() )
   {
     QgsMessageLog::logMessage( error.layerID + " :: " + error.message, tr( "Rendering" ) );
   }
@@ -603,9 +632,13 @@ void QgsMapCanvas::rendererJobFinished()
     }
 
     QImage img = mJob->renderedImage();
+    QImage imgCompare = mJobCompare->renderedImage();
 
     // emit renderComplete to get our decorations drawn
     QPainter p( &img );
+    QPainter pCompare( &imgCompare );
+
+    // TODO We might need to merge the image above just have a single output here.
     emit renderComplete( &p );
 
     QgsSettings settings;
@@ -633,7 +666,16 @@ void QgsMapCanvas::rendererJobFinished()
 
     p.end();
 
-    mMap->setContent( img, imageRect( img, mSettings ) );
+
+    QgsRectangle rect = imageRect( img, mSettings );
+    int half = img.width() / 2;
+    mMap->setWidthOveride(0, half );
+    mMap->setContent( img, rect );
+
+    QgsDebugMsg( "Set compare map" );
+    rect = imageRect( imgCompare, mSettingsCompare);
+    mMapCompare->setWidthOveride(half, half);
+    mMapCompare->setContent( imgCompare, rect );
 
     mLastLayerRenderTime.clear();
     const auto times = mJob->perLayerRenderingTime();
@@ -649,6 +691,8 @@ void QgsMapCanvas::rendererJobFinished()
   // so the class is still valid when the execution returns to the class
   mJob->deleteLater();
   mJob = nullptr;
+  mJobCompare->deleteLater();
+  mJobCompare = nullptr;
 
   emit mapCanvasRefreshed();
 }
@@ -673,15 +717,23 @@ void QgsMapCanvas::previewJobFinished()
   }
 }
 
-QgsRectangle QgsMapCanvas::imageRect( const QImage &img, const QgsMapSettings &mapSettings )
+QgsRectangle QgsMapCanvas::imageRect( const QImage &img, const QgsMapSettings &mapSettings, const bool setWidth, const int width )
 {
   // This is a hack to pass QgsMapCanvasItem::setRect what it
   // expects (encoding of position and size of the item)
   const QgsMapToPixel &m2p = mapSettings.mapToPixel();
   QgsPointXY topLeft = m2p.toMapPoint( 0, 0 );
   double res = m2p.mapUnitsPerPixel();
-  QgsRectangle rect( topLeft.x(), topLeft.y(), topLeft.x() + img.width()*res, topLeft.y() - img.height()*res );
-  return rect;
+  if ( setWidth )
+  {
+    QgsRectangle rect( topLeft.x(), topLeft.y(), topLeft.x() + width*res, topLeft.y() - img.height()*res );
+    return rect;
+  }
+  else
+  {
+    QgsRectangle rect( topLeft.x(), topLeft.y(), topLeft.x() + img.width()*res, topLeft.y() - img.height()*res );
+    return rect;
+  }
 }
 
 bool QgsMapCanvas::previewJobsEnabled() const
@@ -710,9 +762,13 @@ void QgsMapCanvas::stopRendering()
     QgsDebugMsg( "CANVAS stop rendering!" );
     mJobCanceled = true;
     disconnect( mJob, &QgsMapRendererJob::finished, this, &QgsMapCanvas::rendererJobFinished );
+    disconnect( mJobCompare, &QgsMapRendererJob::finished, this, &QgsMapCanvas::rendererJobFinished );
     connect( mJob, &QgsMapRendererQImageJob::finished, mJob, &QgsMapRendererQImageJob::deleteLater );
+    connect( mJobCompare, &QgsMapRendererQImageJob::finished, mJob, &QgsMapRendererQImageJob::deleteLater );
     mJob->cancelWithoutBlocking();
     mJob = nullptr;
+    mJobCompare->cancelWithoutBlocking();
+    mJobCompare = nullptr;
   }
   stopPreviewJobs();
 }

@@ -15,7 +15,11 @@
  ***************************************************************************/
 #include "qgsmapswipecanvasmap.h"
 #include "qgsmapcanvas.h"
+#include "qgsmapsettings.h"
 #include "qgslogger.h"
+#include "qgsproject.h"
+#include "qgsmapthemecollection.h"
+#include "qgsmaprendererparalleljob.h"
 
 #include <QLine>
 #include <QImage>
@@ -34,4 +38,13 @@ void QgsMapSwipeCanvasMap::paint(QPainter* painter, const QStyleOptionGraphicsIt
   int width = (boundingRect().width() / 50) * 100;
   QImage image = contentImage().copy(0, 0, width, height);
   painter->drawImage(QRect(0,0, width, height), image);
+}
+
+void QgsMapSwipeCanvasMap::updateMap()
+{
+  QgsMapSettings settings = QgsMapSettings( mMapCanvas->mapSettings() );
+  QList<QgsMapLayer *> layers = QgsProject::instance()->mapThemeCollection()->mapThemeVisibleLayers( "sidea" );
+  settings.setLayers( layers );
+  QgsMapRendererParallelJob job( settings );
+  job.start();
 }

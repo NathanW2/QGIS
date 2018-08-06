@@ -2104,8 +2104,6 @@ class APP_EXPORT QgisApp : public QMainWindow, private Ui::MainWindow
     //! Map canvas
     QgsMapCanvas *mMapCanvas = nullptr;
 
-    QgsMapSwipeCanvasMap *mSwipeMap = nullptr;
-
     //! Overview map canvas
     QgsMapOverviewCanvas *mOverviewCanvas = nullptr;
     //! Table of contents (legend) for the map

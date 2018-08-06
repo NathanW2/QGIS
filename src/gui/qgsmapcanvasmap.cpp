@@ -64,22 +64,21 @@ void QgsMapCanvasMap::setWidthOveride( int x, int width )
   mClipx = x;
   mClipped = true;
   mItemSize.setWidth( width );
-  update();
 }
 
 qreal QgsMapCanvasMap::width()
 {
- return mItemSize.width();
+  return mItemSize.width();
 }
 
 void QgsMapCanvasMap::paint( QPainter *painter )
 {
   int w = std::round( mItemSize.width() ) - 2, h = std::round( mItemSize.height() ) - 2; // setRect() makes the size +2 :-(
   QImage image;
-  if (mClipped)
+  if ( mClipped )
   {
-    QgsDebugMsg("Clipped!");
-    image = mImage.copy(mClipx, 0, w, mImage.height());
+    QgsDebugMsg( QString( "Clipped to %1 and %2" ).arg( mClipx ).arg( mClipWidth ) );
+    image = mImage.copy( mClipx, 0, w, mImage.height() );
   }
   else
   {
@@ -107,7 +106,14 @@ void QgsMapCanvasMap::paint( QPainter *painter )
     painter->drawImage( QRectF( ul.x(), ul.y(), lr.x() - ul.x(), lr.y() - ul.y() ), imIt->first, QRect( 0, 0, imIt->first.width(), imIt->first.height() ) );
   }
 
-  painter->drawImage( QRect( 0, 0, w, h ), image );
+  if ( mClipped )
+  {
+    painter->drawImage( QRect( mClipx, 0, mClipWidth, h ), image );
+  }
+  else
+  {
+    painter->drawImage( QRect( 0, 0, w, h ), image );
+  }
 
   // For debugging:
   QRectF br = boundingRect();

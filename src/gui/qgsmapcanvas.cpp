@@ -674,7 +674,7 @@ void QgsMapCanvas::rendererJobFinished()
 
     QgsDebugMsg( "Set compare map" );
     rect = imageRect( imgCompare, mSettingsCompare);
-    mMapCompare->setWidthOveride(half, half);
+    mMapCompare->setWidthOveride(half, img.width());
     mMapCompare->setContent( imgCompare, rect );
 
     mLastLayerRenderTime.clear();

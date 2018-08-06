@@ -18,10 +18,16 @@
 
 #include "qgsmapcanvasmap.h"
 
+
 class QgsMapCanvas;
 
+// TODO
+//  - Add mode
+//  - Add slider tool
+// -  Add fade in/out
 class QgsMapSwipeCanvasMap : public QgsMapCanvasMap
 {
+
   public:
     QgsMapSwipeCanvasMap( QgsMapCanvas *canvas );
 

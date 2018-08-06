@@ -17,13 +17,21 @@
 #include "qgsmapcanvas.h"
 #include "qgslogger.h"
 
+#include <QLine>
+#include <QImage>
+#include <QRect>
+
 QgsMapSwipeCanvasMap::QgsMapSwipeCanvasMap( QgsMapCanvas *canvas )
   : QgsMapCanvasMap( canvas )
+
 {
 
 }
 
 void QgsMapSwipeCanvasMap::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-  QgsDebugMsg("PAINT");
+  int height = boundingRect().height() - 2;
+  int width = (boundingRect().width() / 50) * 100;
+  QImage image = contentImage().copy(0, 0, width, height);
+  painter->drawImage(QRect(0,0, width, height), image);
 }

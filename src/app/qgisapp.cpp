@@ -219,6 +219,7 @@ Q_GUI_EXPORT extern int qt_defaultDpiX();
 #include "qgsinbuiltlocatorfilters.h"
 #include "qgslogger.h"
 #include "qgsmapcanvas.h"
+#include "qgsmapswipecanvasmap.h"
 #include "qgsmapcanvasdockwidget.h"
 #include "qgsmapcanvassnappingutils.h"
 #include "qgsmapcanvastracer.h"
@@ -770,6 +771,9 @@ QgisApp::QgisApp( QSplashScreen *splash, bool restorePlugins, bool skipVersionCh
   int myBlue = settings.value( QStringLiteral( "qgis/default_canvas_color_blue" ), 255 ).toInt();
   mMapCanvas->setCanvasColor( QColor( myRed, myGreen, myBlue ) );
   endProfile();
+
+  mSwipeMap = new QgsMapSwipeCanvasMap( mMapCanvas );
+
 
   connect( QgsProject::instance(), &QgsProject::isDirtyChanged, this, [ = ] { setTitleBarText_( *this ); } );
 

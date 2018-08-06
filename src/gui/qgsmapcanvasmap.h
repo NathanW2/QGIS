@@ -31,7 +31,7 @@ class QgsMapCanvas;
  *
  * \note This class is not a part of public API
  */
-class QgsMapCanvasMap : public QgsMapCanvasItem
+class GUI_EXPORT QgsMapCanvasMap : public QgsMapCanvasItem
 {
   public:
 

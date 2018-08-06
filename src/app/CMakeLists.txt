@@ -57,6 +57,7 @@ SET(QGIS_APP_SRCS
   qgslayertreeviewembeddedindicator.cpp
   qgslayertreeviewfilterindicator.cpp
   qgsloadstylefromdbdialog.cpp
+  qgsmapswipecanvasmap.cpp
   qgsmapcanvasdockwidget.cpp
   qgsmaplayerstyleguiutils.cpp
   qgsmapsavedialog.cpp

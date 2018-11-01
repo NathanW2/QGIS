@@ -1347,6 +1347,7 @@ TARGET_LINK_LIBRARIES(qgis_core
   ${Qt5Svg_LIBRARIES}
   ${Qt5PrintSupport_LIBRARIES}
   ${Qt5Network_LIBRARIES}
+  ${Qt5Qml_LIBRARIES}
   ${OPTIONAL_QTWEBKIT}
   ${Qt5Sql_LIBRARIES}
   ${Qt5Concurrent_LIBRARIES}

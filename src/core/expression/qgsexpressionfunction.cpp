@@ -47,6 +47,11 @@
 #include "qgsfieldformatter.h"
 #include "qgsvectorlayerfeatureiterator.h"
 
+#include <QtQml/QJSEngine>
+#include <QtQml/QJSValue>
+#include <QTextStream>
+#include <QFile>
+
 const QString QgsExpressionFunction::helpText() const
 {
   return mHelpText.isEmpty() ? QgsExpression::helpText( mName ) : mHelpText;
@@ -3700,6 +3705,46 @@ static QVariant fcnCreateRamp( const QVariantList &values, const QgsExpressionCo
   return QVariant::fromValue( QgsGradientColorRamp( colors.first(), colors.last(), discrete, stops ) );
 }
 
+static QVariant fncJsCall( const QVariantList &values, const QgsExpressionContext *, QgsExpression *parent, const QgsExpressionNodeFunction * )
+{
+  QJSEngine engine;
+  QString fileName = "C:\\temp\\functiontest.qs";
+  QFile scriptFile( fileName );
+  if ( !scriptFile.open( QIODevice::ReadOnly ) )
+    return QVariant();
+
+  QTextStream input( &scriptFile );
+  QString contents = input.readAll();
+  scriptFile.close();
+  QJSValue result = engine.evaluate( contents );
+
+  QJSValueList args;
+  args << QJSValue( values.at( 0 ).toInt() );
+  args << QJSValue( values.at( 1 ).toInt() );
+
+  QJSValue object = engine.globalObject().property( "customfunc" );
+  if ( !object.hasProperty( "func" ) )
+  {
+    qWarning() << "Script has no \"foo\" function";
+    return 1;
+  }
+
+  if ( !object.property( "func" ).isCallable() )
+  {
+    qWarning() << "\"foo\" property of script is not callable";
+    return 1;
+  }
+
+  QJSValue callResult = object.property( "func" ).call();
+  if ( callResult.isError() )
+  {
+    qWarning() << "Error calling \"foo\" function:" << callResult.toString();
+    return 1;
+  }
+
+  return engine.globalObject().property( "customfunc" ).property( "func" ).call( args ).toVariant();
+}
+
 static QVariant fncSetColorPart( const QVariantList &values, const QgsExpressionContext *, QgsExpression *parent, const QgsExpressionNodeFunction * )
 {
   QColor color = QgsSymbolLayerUtils::decodeColor( values.at( 0 ).toString() );
@@ -4593,7 +4638,8 @@ const QList<QgsExpressionFunction *> &QgsExpression::Functions()
         << new QgsStaticExpressionFunction( QStringLiteral( "color_part" ), 2, fncColorPart, QStringLiteral( "Color" ) )
         << new QgsStaticExpressionFunction( QStringLiteral( "darker" ), 2, fncDarker, QStringLiteral( "Color" ) )
         << new QgsStaticExpressionFunction( QStringLiteral( "lighter" ), 2, fncLighter, QStringLiteral( "Color" ) )
-        << new QgsStaticExpressionFunction( QStringLiteral( "set_color_part" ), 3, fncSetColorPart, QStringLiteral( "Color" ) );
+        << new QgsStaticExpressionFunction( QStringLiteral( "set_color_part" ), 3, fncSetColorPart, QStringLiteral( "Color" ) )
+        << new QgsStaticExpressionFunction( QStringLiteral( "jseval" ), 2, fncJsCall, QStringLiteral( "JS" ) );
 
     QgsStaticExpressionFunction *geomFunc = new QgsStaticExpressionFunction( QStringLiteral( "$geometry" ), 0, fcnGeometry, QStringLiteral( "GeometryGroup" ), QString(), true );
     geomFunc->setIsStatic( false );
@@ -5316,4 +5362,26 @@ void QgsWithVariableExpressionFunction::appendTemporaryVariable( const QgsExpres
 
   QgsExpressionContext *updatedContext = const_cast<QgsExpressionContext *>( context );
   updatedContext->appendScope( scope );
+}
+
+QgsJavascriptExpressionFunction::QgsJavascriptExpressionFunction(QString funcname, int parms, QString fncPointer, QString fncFileName)
+    :QgsExpressionFunction(funcname, parms, "Javascript")
+{
+    mFuncFile = fncFileName;
+    mFuncPointer = fncPointer;
+}
+
+bool QgsJavascriptExpressionFunction::isStatic(const QgsExpressionNodeFunction *node, QgsExpression *parent, const QgsExpressionContext *context) const
+{
+    return false;
+}
+
+QVariant QgsJavascriptExpressionFunction::func(const QVariantList &values, const QgsExpressionContext *context, QgsExpression *parent, const QgsExpressionNodeFunction *node)
+{
+    return QVariant();
+}
+
+bool QgsJavascriptExpressionFunction::prepare(const QgsExpressionNodeFunction *node, QgsExpression *parent, const QgsExpressionContext *context) const
+{
+    return true;
 }

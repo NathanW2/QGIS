@@ -546,6 +546,24 @@ class QgsArrayFilterExpressionFunction : public QgsExpressionFunction
 
 };
 
+class CORE_EXPORT QgsJavascriptExpressionFunction : public QgsExpressionFunction
+{
+  public:
+    QgsJavascriptExpressionFunction(QString funcname, int parms, QString fncPointer, QString fncFileName);
+
+    bool isStatic( const QgsExpressionNodeFunction *node, QgsExpression *parent, const QgsExpressionContext *context ) const override;
+
+    QVariant func( const QVariantList &values, const QgsExpressionContext *context, QgsExpression *parent, const QgsExpressionNodeFunction *node ) override;
+
+    bool prepare( const QgsExpressionNodeFunction *node, QgsExpression *parent, const QgsExpressionContext *context ) const override;
+
+  private:
+    // Points to the object that contains the function to run.
+    QString mFuncPointer;
+    // Points to the JS file that contains the function def.
+    QString mFuncFile;
+};
+
 /**
  * Handles the ``with_variable(name, value, node)`` expression function.
  * It temporarily appends a new scope to the expression context for all nested

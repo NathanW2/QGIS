@@ -24,6 +24,8 @@
 #include "qgsgeometry.h"
 #include "qgsproject.h"
 
+#include <QtQml/QJSEngine>
+
 
 // from parser
 extern QgsExpressionNode *parseExpression( const QString &str, QString &parserErrorMsg, QList<QgsExpression::ParserError> &parserErrors );

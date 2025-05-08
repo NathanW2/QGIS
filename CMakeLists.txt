@@ -14,6 +14,11 @@ if("${CMAKE_VERSION}" VERSION_GREATER_EQUAL "3.31")
   cmake_policy(SET CMP0177 NEW)
 endif()
 
+if("${CMAKE_VERSION}" VERSION_GREATER_EQUAL "3.25")
+  cmake_policy(SET CMP0141 NEW)
+  message(DEBUG "Enable CMP0141 for MSCV debug flag")
+endif()
+
 # don't relink it only the shared object changes
 set(CMAKE_LINK_DEPENDS_NO_SHARED ON)
 
@@ -129,13 +134,27 @@ if (USE_CCACHE)
     execute_process(COMMAND ccache --help OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE CCACHE_HELP)
     execute_process(COMMAND ccache --get-config sloppiness OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE CCACHE_SLOPPINESS)
     execute_process(COMMAND ccache --get-config compiler_type OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE CCACHE_COMPILER_TYPE)
+    execute_process(COMMAND ccache --version OUTPUT_STRIP_TRAILING_WHITESPACE OUTPUT_VARIABLE CCACHE_VERSION_STR)
+
     string(FIND "${CCACHE_SLOPPINESS}" "pch_defines" fpch_defines_found_index)
     string(FIND "${CCACHE_SLOPPINESS}" "time_macros" time_macros_found_index)
     string(FIND "${CCACHE_SLOPPINESS}" "include_file_mtime" include_file_mtime_found_index)
     string(FIND "${CCACHE_SLOPPINESS}" "include_file_ctime" include_file_ctime_found_index)
     # Detect if we have ccache >= 4.8 which accepts passing configuration settings when invoking the compiler
     string(FIND "${CCACHE_HELP}" "ccache [KEY=VALUE ...] compiler" ccache_key_value_found_index)
-    if (fpch_defines_found_index EQUAL -1 OR time_macros_found_index EQUAL -1 OR
+
+    message(STATUS "CCACHE VERSION STR: ${CCACHE_VERSION_STR}")
+
+    STRING(REGEX MATCH "[0-9]+\\.[0-9]+\\.[0-9]+" CCACHE_VERSION ${CCACHE_VERSION_STR})
+    message(STATUS "ccache version: ${CCACHE_VERSION}")
+
+    if(MSVC AND "${CCACHE_VERSION}" VERSION_GREATER_EQUAL "4.10")
+       # ccache workes with precompiled headers 4.10+ 
+       # See (cf https://github.com/ccache/ccache/issues/1383)
+      SET(MSVC_CCACHE TRUE)
+    endif()
+
+    if (MSVC_CCACHE OR fpch_defines_found_index EQUAL -1 OR time_macros_found_index EQUAL -1 OR
         (BUILD_WITH_QT6 AND (include_file_mtime_found_index EQUAL -1 OR include_file_ctime_found_index EQUAL -1)))
         set(CCACHE_SLOPPINESS_REQUIRED "pch_defines,time_macros")
         if (BUILD_WITH_QT6 AND (include_file_mtime_found_index EQUAL -1 OR include_file_ctime_found_index EQUAL -1))
@@ -144,20 +163,23 @@ if (USE_CCACHE)
     else()
         set(CCACHE_SLOPPINESS_REQUIRED "")
     endif()
+
     if (BUILD_WITH_QT6 AND CMAKE_CXX_COMPILER STREQUAL "/usr/bin/c++" AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT "${CCACHE_COMPILER_TYPE}" STREQUAL "gcc")
         # Cf https://github.com/ccache/ccache/discussions/959
         set(CCACHE_COMPILER_TYPE_GCC_REQUIRED ON)
     else()
         set(CCACHE_COMPILER_TYPE_GCC_REQUIRED OFF)
     endif()
+
     set(CCACHE_INVOCATION_COMMAND "ccache")
-    if (MSVC)
-       # CCache doesn't work yet with precompiled headers (cf https://github.com/ccache/ccache/issues/1383)
-       # so no need to set specific ccache configuration items
-    elseif (ccache_key_value_found_index EQUAL -1 )
+
+    
+    if (ccache_key_value_found_index EQUAL -1 )
+
       if (CCACHE_SLOPPINESS_REQUIRED)
           message(FATAL_ERROR "The use of precompiled headers only works if the ccache 'sloppiness' settings contains 'pch_defines' and 'time_macros'. Consider running 'ccache --set-config sloppiness=${CCACHE_SLOPPINESS_REQUIRED}' to define them")
       endif()
+
       if (CCACHE_COMPILER_TYPE_GCC_REQUIRED)
           message(FATAL_ERROR "The use of precompiled headers only works properly with QT6 if the ccache 'compiler_type' settings is set to 'gcc'. Consider running 'ccache --set-config compiler_type=gcc'")
       endif()
@@ -169,17 +191,34 @@ if (USE_CCACHE)
         string(APPEND CCACHE_INVOCATION_COMMAND " compiler_type=gcc")
       endif()
     endif()
+
+    # /Zi isn't support in ccache and will cache miss 100% of the time for MSVC 
+    # but we can force it using /Z7 which will increase the symbol size
+    # but with the upside of being able to use ccache for the builds
+    if (MSVC)
+      if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+        string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
+      elseif(CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+        string(REPLACE "/Zi" "/Z7" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
+        string(REPLACE "/Zi" "/Z7" CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO}")
+      endif()
+      set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>")
+    endif()
+
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_INVOCATION_COMMAND}")
     set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK "${CCACHE_INVOCATION_COMMAND}")
   endif(CCACHE_FOUND)
 endif(USE_CCACHE)
 
-if (USE_CCACHE AND MSVC)
-  # CCache doesn't work yet with precompiled headers (cf https://github.com/ccache/ccache/issues/1383)
+set(USE_PRECOMPILED_HEADERS ON)
+
+# CCache workes with MSVC precompiled headers above version 4.10
+if (MSVC AND NOT MSVC_CCACHE)
   set(USE_PRECOMPILED_HEADERS OFF)
-else()
-  set(USE_PRECOMPILED_HEADERS ON)
+  message(DEBUG "Precomplied Headers Disabled: MSCV and wrong ccache version")
 endif()
+
 
 if (IOS)
     set (DEFAULT_FORCE_STATIC_LIBS TRUE)

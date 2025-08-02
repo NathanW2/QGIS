@@ -2327,13 +2327,13 @@ endif()
 # Test data dir for QgsRenderChecker
 add_definitions(-DTEST_DATA_DIR="${TEST_DATA_DIR}")
 
-set(IMAGE_RCCS ../../images/images.qrc)
+#set(IMAGE_RCCS ../../images/images.qrc)
 
 #############################################################
 # qgis_core library
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(qgis_core ${LIBRARY_TYPE} ${QGIS_CORE_SRCS} ${QGIS_CORE_HDRS} ${QGIS_CORE_PRIVATE_HDRS} ${IMAGE_RCCS})
+add_library(qgis_core ${LIBRARY_TYPE} ${QGIS_CORE_SRCS} ${QGIS_CORE_HDRS} ${QGIS_CORE_PRIVATE_HDRS})
 
 if(USE_PRECOMPILED_HEADERS)
   target_precompile_headers(qgis_core PRIVATE $<$<COMPILE_LANGUAGE:CXX>:qgis.h>)

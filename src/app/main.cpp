@@ -35,6 +35,7 @@
 #include <QStandardPaths>
 #include <QScreen>
 #include <QSurfaceFormat>
+#include <QResource>
 
 #include <cstdio>
 #include <cstdlib>
@@ -1491,6 +1492,8 @@ int main( int argc, char *argv[] )
     // based on the default style (or we miss custom style tweaks)
     QApplication::setStyle( new QgsAppStyle( activeStyleName ) );
   }
+
+  QResource::registerResource("C:/Users/nathan/dev/QGIS/build/output/theme2.rcc");
 
   // set authentication database directory
   if ( !authdbdirectory.isEmpty() )
